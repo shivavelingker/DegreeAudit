@@ -2,6 +2,7 @@
 A hypothetical interactive degree audit to determine how close you are to graduating with multiple degree plans.
 
 **Introduction** 
+
 As a student at the University of Texas at Austin, there are so many degree paths that interest me. UT provides us with an Interactive Degree Audit system that allows students to see if they're "on track" for one degree plan and graduating on time. However, it only looks at the present moment and doesn't let students map out their four year course schedule to see if they'll graduate on time in the grand scheme of college. Additionally, if I want to pursue multiple degree paths and make sure I have enough overlap between the degree paths to maximize my education and still graduate on time, I would have no recourse but to manually write all that information out.
 
 Through my *brief* research, I couldn't find any program that helped me easily accomplish all of these goals:
