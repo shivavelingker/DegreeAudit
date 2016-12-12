@@ -10,7 +10,7 @@ Through my *brief* research, I couldn't find any program that helped me easily a
 - Track the overlap that one course has with multiple degree requirements
 - Understand whether pursuing multiple degree paths is feasible in the first place
 
-I then decided to build my own program to accomplish this (through Python's PyQt/PySide library).
+I then decided to build my own program to accomplish this. Two implementations exist: a Python implementation through PyQt which is more rigid and a web-friendly, flexible version through Onsen UI. 
 
 **Personal Background**
 
@@ -20,12 +20,10 @@ I am a Computer Science major pursuing a Bachelor of Science and Arts. For this 
 (3) Computer Science-specific courses
 (4) a certificate [course plan that's more than a minor and less than a major]
 
-Additionally, I wanted to pursue a double major through Liberal Arts. I was already pursuing a certificate in Core Texts and Ideas (a philosophy program focused on the foundations of America), but I was considering a couple other certificates. This means I was considering two majors, at least two certificates, and my general degree requirements. Trying to figure if I could accomplish all of this in 4 years is extremely complicated, especially if I worked on this by hand. I constantly move classes around and have to track overlap for multiple degrees. Therefore, I felt this app was an absolute necessity for me to map out my college career and maximize my education.
+Additionally, I wanted to pursue a double major through Liberal Arts. I was already pursuing a certificate in Core Texts and Ideas (a philosophy program focused on the foundations of America), but I was considering a couple other certificates. This means I was considering two majors, at least two certificates, and my general degree requirements. Trying to figure if I could accomplish all of this in 4 years is extremely complicated, especially if I worked on this by hand. I constantly move classes around or change them, and have make sure there is sufficient overlap for these degree paths each time a change is made. Therefore, I felt this app was an absolute necessity for me to map out my college career and maximize my education.
 
 **Program Design**
 
-Each degree path must be entered manually with the required courses. For example, Computer Science requires classes such as Operating Systems and 4 upper division electives. These must be explicitly laid out. Then, you add courses to each semester that satisfy these requirements. You can fill in completed semesters and anticipated courses for upcoming semesters. Once this is done, connect the four year plan to the degree completion by assigning courses as "satisfying" whichever degree path(s). For example, my "Classics of Social and Political Thought" class counts for both Common Core and my certificate requirement. I would say that it satisfies both, and I'm that much closer to finishing my degree plan.
+Each degree path must be entered manually with the required courses. For example, the Computer Science BSA requires classes such as Operating Systems and 4 upper division electives. These must be explicitly laid out. Then, you add courses to each semester that satisfy these requirements. You can fill in completed semesters and anticipated courses for upcoming semesters. Once this is done, connect the four year plan to the degree completion by assigning courses as "satisfying" whichever degree path(s). For example, my "Classics of Social and Political Thought" class counts for both Common Core and my certificate requirement. I would input that it satisfies both, and I'm that much closer to finishing my degree plan.
 
-All data is saved to a TXT file in the form of commands. Each time you modify the degree audit, the corresponding function is executed and the line of code needed to execute that function is stored in the TXT file. On the following run, each command from the TXT file is executed (using eval) to bring you to the current state.
-
-Eventually, a four year plan is generated with (hopefully) completed degree paths. Classes can be rearranged and reassigned as necessary. The interface is simple enough that this, often arduous process, is made incredibly easy.
+A four year plan is generated with (hopefully) completed degree paths. Classes can be rearranged and reassigned as necessary. The interface is simple enough that this, often arduous process, is made incredibly easy.
