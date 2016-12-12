@@ -1,34 +1,152 @@
-<ons-navigator id="App" page="main.html"></ons-navigator>
+<ons-splitter>
+  <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
+    <ons-page>
+      <ons-list>
+        <ons-list-item onclick="fn.load('main.html')" tappable>
+          Home
+        </ons-list-item>
+        <ons-list-item onclick="fn.load('degrees.html')" tappable>
+          Degree Progress
+        </ons-list-item>
+        <ons-list-item onclick="fn.load('years.html')" tappable>
+          Four Year Plan
+        </ons-list-item>
+        <ons-list-item onclick="fn.load('courses.html')" tappable>
+          Courses
+        </ons-list-item>
+      </ons-list>
+    </ons-page>
+  </ons-splitter-side>
+  <ons-splitter-content id="content" page="main.html"></ons-splitter-content>
+</ons-splitter>
 
 <ons-template id="main.html">
-   <ons-page id="main">
-      <ons-toolbar>
-         <div class="center">Four Year Scheduler</div>
-      </ons-toolbar>
+  <ons-page>
+    <ons-toolbar>
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      <div class="center">
+        Hypothetical Degree Audit
+      </div>
+    </ons-toolbar>
 
-      <center>
-      <br><br>
-   	    <ons-button id="degrees">Degree Progress</ons-button>
-   	  <br><br>
-   	    <ons-button id="years">Four Year Plan</ons-button>
-   	  </center>
-   </ons-page>
+    <center>
+    <br><br>
+      <ons-button id="degrees">Degree Progress</ons-button>
+    <br><br>
+      <ons-button id="years">Four Year Plan</ons-button>
+    </center>
+  </ons-page>
 </ons-template>
 
 <ons-template id="degrees.html">
-  <ons-page id="degrees">
+  <ons-page>
     <ons-toolbar>
-      <div class="left"><ons-back-button>Back</ons-back-button></div>
-      <div class="center">Degree Audit</div>
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      <div class="center">
+        Degree Progress
+      </div>
     </ons-toolbar>
   </ons-page>
 </ons-template>
 
 <ons-template id="years.html">
-  <ons-page id="years">
+  <ons-page>
     <ons-toolbar>
-      <div class="left"><ons-back-button>Back</ons-back-button></div>
-      <div class="center">Four Year Plan</div>
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      <div class="center">
+        Four Year Plan
+      </div>
     </ons-toolbar>
+  </ons-page>
+</ons-template>
+
+<ons-template id="courses.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      <div class="center">
+        Courses
+      </div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.load('course.html');fn.newCourse();">
+          <ons-icon icon="md-plus"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+  </ons-page>
+</ons-template>
+
+<ons-template id="course.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      <div class="center">
+        Course
+      </div>
+    </ons-toolbar>
+    
+    <!--Name-->
+    <div style="text-align: center; margin-top: 30px;">
+      <p>
+        <ons-input id="title" modifier="underbar" placeholder="Title"></ons-input>
+      </p>
+      <p>
+        <ons-input id="abbr" modifier="underbar" placeholder="Abbreviation"></ons-input>
+      </p>
+    </div>
+    
+    <!--Hours-->
+    <ons-list-header id="hours">Hours</ons-list-header>
+    <ons-row>
+      <ons-col width="40px" style="text-align: center; line-height: 31px;">
+        <ons-icon icon="md-time"></ons-icon>
+      </ons-col>
+      <ons-col>
+        <ons-range style="width: 99%;" value="10" min="0" max="10" step="1"></ons-range>
+      </ons-col>
+    </ons-row>
+    
+    <!--Degrees-->
+    
+    <!--Semester-->
+    <ons-list id="semesters">
+      <ons-list-header>Semester Taken</ons-list-header>
+      <ons-list-item tappable>
+        <label class="left">
+          <ons-input name="semester" type="radio" input-id="s0"></ons-input>
+        </label>
+        <label for="s0" class="center">
+          None
+        </label>
+      </ons-list-item>
+      <ons-list-item tappable>
+        <label class="left">
+          <ons-input name="semester" type="radio" input-id="s1"></ons-input>
+        </label>
+        <label for="s1" class="center">
+          Before Fall 2015
+        </label>
+      </ons-list-item>
+    </ons-list>
   </ons-page>
 </ons-template>
