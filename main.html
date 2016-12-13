@@ -1,152 +1,155 @@
-<ons-splitter>
-  <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
-    <ons-page>
-      <ons-list>
-        <ons-list-item onclick="fn.load('main.html')" tappable>
-          Home
-        </ons-list-item>
-        <ons-list-item onclick="fn.load('degrees.html')" tappable>
-          Degree Progress
-        </ons-list-item>
-        <ons-list-item onclick="fn.load('years.html')" tappable>
-          Four Year Plan
-        </ons-list-item>
-        <ons-list-item onclick="fn.load('courses.html')" tappable>
-          Courses
-        </ons-list-item>
-      </ons-list>
-    </ons-page>
-  </ons-splitter-side>
-  <ons-splitter-content id="content" page="main.html"></ons-splitter-content>
-</ons-splitter>
+<ons-navigator var="nav" page="main.html"></ons-navigator>
 
 <ons-template id="main.html">
   <ons-page>
-    <ons-toolbar>
-      <div class="left">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="md-menu"></ons-icon>
-        </ons-toolbar-button>
-      </div>
-      <div class="center">
-        Hypothetical Degree Audit
-      </div>
-    </ons-toolbar>
-
-    <center>
-    <br><br>
-      <ons-button id="degrees">Degree Progress</ons-button>
-    <br><br>
-      <ons-button id="years">Four Year Plan</ons-button>
-    </center>
+    <ons-tabbar>
+      <ons-tab label="Degree Plan" page="degree.html" icon="ion-university" active>
+      </ons-tab>
+      <ons-tab label="Four Year Plan" page="plan.html" icon="ion-ios-calendar">
+      </ons-tab>
+      <ons-tab label="Courses" page="courses.html" icon="ion-ios-cog">
+      </ons-tab>
+    </ons-tabbar>
   </ons-page>
 </ons-template>
 
-<ons-template id="degrees.html">
+<ons-template id="degree.html">
   <ons-page>
     <ons-toolbar>
-      <div class="left">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="md-menu"></ons-icon>
+      <div class="center">Degree Progress</div>
+      <div class="right">
+        <ons-toolbar-button ng-click="nav.pushPage('add_deg.html')">
+          <ons-icon icon="md-plus"></ons-icon>
         </ons-toolbar-button>
       </div>
-      <div class="center">
-        Degree Progress
-      </div>
     </ons-toolbar>
+
+    <p style="text-align: center;">
+      This is the first page.
+    </p>
   </ons-page>
 </ons-template>
 
-<ons-template id="years.html">
+<ons-template id="add_deg.html">
   <ons-page>
     <ons-toolbar>
       <div class="left">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="md-menu"></ons-icon>
-        </ons-toolbar-button>
+        <ons-back-button>Back</ons-back-button>
       </div>
-      <div class="center">
-        Four Year Plan
+      <div class="center">Add Degree Plan</div>
+      <div class="right">
+        <ons-toolbar-button>Save</ons-toolbar-button>
       </div>
     </ons-toolbar>
+
+    <p style="text-align: center;">
+      This is the second page.
+    </p>
   </ons-page>
+</ons-template>
+
+<ons-template id="plan.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="center">Four Year Plan</div>
+      <div class="right">
+        <ons-toolbar-button ng-click="nav.pushPage('add_semester.html')">
+          <ons-icon icon="md-plus"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <p style="text-align: center;">
+      This is the second page.
+    </p>
+  </ons-page>
+</ons-template>
+
+<ons-template id="add_semester.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="left">
+        <ons-back-button>Back</ons-back-button>
+      </div>
+      <div class="center">Add Semester</div>
+      <div class="right">
+        <ons-toolbar-button>Save</ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <p style="text-align: center;">
+      Add another semester
+    </p>
+  </ons-page>  
 </ons-template>
 
 <ons-template id="courses.html">
   <ons-page>
     <ons-toolbar>
-      <div class="left">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="md-menu"></ons-icon>
-        </ons-toolbar-button>
-      </div>
-      <div class="center">
-        Courses
-      </div>
+      <div class="center">Courses</div>
       <div class="right">
-        <ons-toolbar-button onclick="fn.load('course.html');fn.newCourse();">
+        <ons-toolbar-button ng-click="nav.pushPage('course.html', {data: {name: 'Add Course', title: 'Classics', abbr: 'CTI 302', hours: 3, semester: ''}})">
           <ons-icon icon="md-plus"></ons-icon>
         </ons-toolbar-button>
       </div>
     </ons-toolbar>
+
+    <p style="text-align: center;">
+      View all courses below.
+    </p>
   </ons-page>
 </ons-template>
 
 <ons-template id="course.html">
-  <ons-page>
+  <ons-page ng-init="title = nav.topPage.data.title; abbr = nav.topPage.data.abbr; hours = nav.topPage.data.hours;">
     <ons-toolbar>
       <div class="left">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="md-menu"></ons-icon>
-        </ons-toolbar-button>
+        <ons-back-button>Back</ons-back-button>
       </div>
-      <div class="center">
-        Course
+      <div class="center">{{ nav.topPage.data.name }}</div>
+      <div class="right">
+        <ons-toolbar-button>Save</ons-toolbar-button>
       </div>
     </ons-toolbar>
-    
+
     <!--Name-->
     <div style="text-align: center; margin-top: 30px;">
       <p>
-        <ons-input id="title" modifier="underbar" placeholder="Title"></ons-input>
+        <ons-input id="abbr" style="width: 50%;" modifier="underbar" placeholder="Abbreviation" ng-model="abbr">
+        </ons-input>
       </p>
       <p>
-        <ons-input id="abbr" modifier="underbar" placeholder="Abbreviation"></ons-input>
+        <ons-input id="title" style="width: 50%;" modifier="underbar" placeholder="Title" ng-model="title">
+        </ons-input>
       </p>
     </div>
     
     <!--Hours-->
-    <ons-list-header id="hours">Hours</ons-list-header>
-    <ons-row>
-      <ons-col width="40px" style="text-align: center; line-height: 31px;">
-        <ons-icon icon="md-time"></ons-icon>
-      </ons-col>
-      <ons-col>
-        <ons-range style="width: 99%;" value="10" min="0" max="10" step="1"></ons-range>
-      </ons-col>
-    </ons-row>
+    <div class="center">
+      <ons-list-header id="hours">Hours: {{ hours }}</ons-list-header>
+      <ons-row>
+        <ons-col width="40px" style="text-align: center; line-height: 31px;">
+          <ons-icon icon="md-time"></ons-icon>
+        </ons-col>
+        <ons-col>
+          <ons-range style="width: 90%;" min="0" max="10" step="1" ng-model="hours"></ons-range>
+        </ons-col>
+      </ons-row>
+    </div>
     
-    <!--Degrees-->
-    
-    <!--Semester-->
-    <ons-list id="semesters">
-      <ons-list-header>Semester Taken</ons-list-header>
-      <ons-list-item tappable>
+    <!--Semesters-->
+    <ons-list-header id="semester">Semester Taken: {{ semester }}</ons-list-header>
+    <ons-list ng-controller="Semesters as s">
+      <ons-list-item ons-lazy-repeat="s.delegate" tappable>
         <label class="left">
-          <ons-input name="semester" type="radio" input-id="s0"></ons-input>
+          <ons-input type="radio" name="semester" input-id="{{ index }}" value="{{ semester }}"></ons-input>
         </label>
-        <label for="s0" class="center">
-          None
-        </label>
-      </ons-list-item>
-      <ons-list-item tappable>
-        <label class="left">
-          <ons-input name="semester" type="radio" input-id="s1"></ons-input>
-        </label>
-        <label for="s1" class="center">
-          Before Fall 2015
+        <label for="{{ index }}" class="center">
+          {{ semester }}
         </label>
       </ons-list-item>
     </ons-list>
+
+
   </ons-page>
 </ons-template>
