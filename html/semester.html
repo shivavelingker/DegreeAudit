@@ -1,0 +1,66 @@
+<ons-page ng-controller="SemesterCtrl" ng-init="init()">
+
+	<ons-popover cancelable direction="left right" var="popover">
+		<div style="padding: 10px;">
+			<ons-list>
+				<ons-list-item ng-click="rename()" tappable>
+					Rename
+				</ons-list-item>
+				<ons-list-item ng-click="flipStatus()" tappable>
+					<div ng-switch="chosen.completed">
+						<div ng-switch-when="0">
+							Mark complete
+						</div>
+						<div ng-switch-when="1">
+							Mark incomplete
+						</div>
+					</div>
+				</ons-list-item>
+				<ons-list-item ng-click="moveLeft()" tappable>
+					Move left
+				</ons-list-item>
+				<ons-list-item ng-click="moveRight()" tappable>
+					Move right
+				</ons-list-item>
+				<ons-list-item ng-click="delete()" tappable>
+					Delete
+				</ons-list-item>
+			</ons-list>
+		</div>
+	</ons-popover>
+
+	<ons-toolbar>
+		<div class="center">
+			Master Plan
+		</div>
+	</ons-toolbar>
+
+	<br>
+
+	<ons-row>
+		<ons-col ng-repeat="semester in semesters" ng-switch="semester.completed">
+
+			<div ng-switch-when="1">
+				<ons-button modifier="quiet" ng-click="modifySemester(semester)">
+					{{ semester.name }}
+				</ons-button>
+			</div>
+
+			<div ng-switch-when="0">
+				<ons-button modifier="quiet incomplete" ng-click="modifySemester(semester)">
+					{{ semester.name }}
+				</ons-button>
+			</div>
+		</ons-col>
+	</ons-row>
+
+	<div gridster="gridsterOpts">
+		<ul>
+			<li gridster-item="course" ng-repeat="course in courses">{{ course.name }}</li>
+		</ul>
+	</div>
+
+	<ons-fab position="bottom right" ng-click="add()" ripple>
+		<ons-icon icon="md-plus"></ons-icon>
+	</ons-fab>
+</ons-page>

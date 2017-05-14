@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+
+	<title>Degree Audit</title>
+
+	<script src="./lib/onsenui/js/onsenui.js"></script>
+	<script src="./lib/angular/angular-1.5.8.min.js"></script>
+	<script src="./lib/onsenui/js/angular-onsenui.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+	<!-- Gridster -->
+	<link rel="stylesheet" href="lib/angular/angular-gridster.min.css"/>
+	<script src="lib/angular/jquery.resize.js"></script>
+	<script src="lib/angular/angular-gridster.min.js"></script>
+
+    <!-- Google API -->
+    <script src="https://apis.google.com/js/client.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+
+    <!-- Angular Google picker -->
+    <script src="js/google-picker.min.js"></script>
+
+	<script src="js/app.js"></script>
+	<script src="js/controllers.js"></script>
+
+	<link rel="stylesheet" href="lib/onsenui/css/onsenui.css">
+	<link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
+	<link rel="stylesheet" href="css/style.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+<body ng-app="myApp">
+	<ons-navigator
+	var="myNav"
+	page="html/semester.html"
+	>
+		<ons-page>
+			<ons-tabbar var="tabbar" position="auto">
+				<ons-tab page="html/semester.html" icon="ion-university" label="Degree Progress"></ons-tab>
+				<ons-tab page="html/semester.html" icon="ion-calendar" label="Master Plan" active></ons-tab>
+			</ons-tabbar>
+		</ons-page>
+	</ons-navigator>
+</body>
+</html>
