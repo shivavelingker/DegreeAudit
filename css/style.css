@@ -33,8 +33,42 @@ ons-splitter-side[side="left"] {
   color: #666
 }
 
+.quote {
+  text-align: center;
+  font-family: 'Coming Soon', cursive;
+  font-size: xx-large;
+  color: green;
+}
+
+.note {
+  font-size: small;
+  color: maroon;
+}
+
+h3 {
+  background-color: yellow;
+}
+
+.button--light{
+  color: #007FFF;
+  border-color: #007FFF;
+}
+
 .button--incomplete{
   color: gray;
+  border-color: gray;
+}
+
+.button--red{
+  color: red;
+}
+
+.small{
+  font-size: 12px;
+}
+
+.centered{
+  text-align: center;
 }
 
 

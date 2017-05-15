@@ -1,5 +1,22 @@
 <ons-page ng-controller="SemesterCtrl" ng-init="init()">
 
+	<ons-toolbar>
+		<div class="left">
+			<ons-toolbar-button ng-click="menu.left.open()">
+              <ons-icon icon="md-menu"></ons-icon>
+            </ons-toolbar-button>
+		</div>
+		<div class="center">
+			Master Plan
+		</div>
+		<div class="right" ng-switch="saved">
+			<ons-button modifier="quiet red" ng-switch-when="0" ng-click="save()">Save</ons-button>
+			<ons-button modifier="quiet" ng-switch-when="1" ng-click="save()">Saved</ons-button>
+		</div>
+	</ons-toolbar>
+
+	<br>
+
 	<ons-popover cancelable direction="left right" var="popover">
 		<div style="padding: 10px;">
 			<ons-list>
@@ -29,38 +46,49 @@
 		</div>
 	</ons-popover>
 
-	<ons-toolbar>
-		<div class="center">
-			Master Plan
-		</div>
-	</ons-toolbar>
-
-	<br>
-
-	<ons-row>
+	<ons-row style="padding: 10px">
 		<ons-col ng-repeat="semester in semesters" ng-switch="semester.completed">
-
 			<div ng-switch-when="1">
-				<ons-button modifier="quiet" ng-click="modifySemester(semester)">
+				<ons-button modifier="light" ng-click="modifySemester(semester)">
 					{{ semester.name }}
 				</ons-button>
 			</div>
 
 			<div ng-switch-when="0">
-				<ons-button modifier="quiet incomplete" ng-click="modifySemester(semester)">
+				<ons-button modifier="light incomplete" ng-click="modifySemester(semester)">
 					{{ semester.name }}
 				</ons-button>
 			</div>
 		</ons-col>
 	</ons-row>
 
+	<ons-row style="padding: 10px">
+		<ons-col class="small" ng-repeat="semester in semesters">
+			<i><u>Total Hours: {{ semester.hours }}</u></i>
+		</ons-col>
+	</ons-row>
+
 	<div gridster="gridsterOpts">
 		<ul>
-			<li gridster-item="course" ng-repeat="course in courses">{{ course.name }}</li>
+			<li
+				gridster-item="course"
+				ng-repeat="course in courses"
+				style="padding: 5px"
+				class="small">
+					{{ course.abbr }} - {{ course.name }}
+			</li>
 		</ul>
 	</div>
 
-	<ons-fab position="bottom right" ng-click="add()" ripple>
-		<ons-icon icon="md-plus"></ons-icon>
-	</ons-fab>
+	<ons-speed-dial position="bottom right" direction="up" ripple>
+		<ons-fab>
+			<ons-icon icon="md-plus"></ons-icon>
+		</ons-fab>
+		<ons-speed-dial-item>
+			<ons-icon icon="md-book" ng-click="addCourse()"></ons-icon>
+		</ons-speed-dial-item>
+		<ons-speed-dial-item>
+			<ons-icon icon="fa-calendar" ng-click="addSemester()"></ons-icon>
+		</ons-speed-dial-item>
+	</ons-speed-dial>
 </ons-page>
