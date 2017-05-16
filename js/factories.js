@@ -22,16 +22,18 @@ angular.module('myApp')
 	};
 
 	self.registerObserver = function(observer){
-		observers.push(observer);
-		notifyObservers();
+		if(observers.indexOf(observer) < 0)
+			observers.push(observer);
 	};
 
 	//SERVICE
 	self.loadApi = function (){
 		//Finish login process
-		gapi.client.load('drive', 'v3').then(function(){
-			loggedIn = true;
-			notifyObservers();
+		gapi.client.load('drive', 'v3').then(function() {
+			if(gapi.auth.getToken){
+				loggedIn = true;
+				notifyObservers();
+			}
 		});
 	};
 
@@ -84,14 +86,16 @@ angular.module('myApp')
 	self.fileData = null;
 	self.cntr = 0;
 	self.timeLock = true;
+	self.saved = 2;
 	var observers = [];
 	var setup = false;
 
 	//NOTIFICATION SYSTEM
 	self.deregister = function (remove){
-		for(i = 0; i<observers.length; i++)
-			if(observers[i] == remove)
-				observers.splice(i, 1);
+		angular.forEach(observers, function(observer, index){
+			if(angular.equals(remove, observer))
+				observers.splice(index, 1);
+		})
 	};
 
 	var notifyObservers = function (){
@@ -102,6 +106,10 @@ angular.module('myApp')
 	};
 
 	self.registerObserver = function (observer){
+		angular.forEach(observers, function(exist, index){
+			if(angular.equals(exist, observer))
+				return;
+		})
 		observers.push(observer);
 	};
 
@@ -112,7 +120,7 @@ angular.module('myApp')
 			return;
 		}
 		
-		//Get "categories.json" file
+		//Get data file
 		gapi.client.drive.files.list({"q": "name = 'data'"}).execute(function(resp, body){
 			//File needs to be created
 			if(resp.files.length == 0){
@@ -125,6 +133,7 @@ angular.module('myApp')
 					console.log("New file created!");
 					gFile = file;
 					self.push('[]\n[{"name":"Unsorted","completed":0,"hours":0}]\n[]');
+					window.location = "";
 				});
 			}
 			else{
@@ -134,7 +143,24 @@ angular.module('myApp')
 		});
 	};
 
+	self.dirty = function (){
+		if(self.saved > 0) {
+			self.saved = 0;
+			notifyObservers();
+		}
+	}
+
+	self.loginStatus = function (){
+		if(gFile.id == undefined)
+			return false;
+		return true;
+	}
+
 	self.pull = function (){
+		if(!self.loginStatus()){
+			$timeout(self.pull);
+			return;
+		}
 		var xhr = new XMLHttpRequest();
 
 		xhr.open('GET', 'https://www.googleapis.com/drive/v3/files/' + gFile.id + '?alt=media');
@@ -142,12 +168,12 @@ angular.module('myApp')
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4 && xhr.status == 200 ){
 				self.fileData = xhr.response;
-				console.log(xhr.response);
+				// console.log(xhr.response);
+				console.log("pull complete");
 				notifyObservers();
 			}
 		}
 		xhr.send();
-		console.log("pull complete");
 	};
 
 	self.push = function (data){
@@ -159,8 +185,9 @@ angular.module('myApp')
 		xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4 && xhr.status == 200 ){
-				notifyObservers();
 				console.log("File saved");
+				self.saved = 2;
+				notifyObservers();
 				//Release lock
 				self.cntr--;
 			}
@@ -170,8 +197,12 @@ angular.module('myApp')
 
 	self.save = function (data){
 		//Basic lock
-		if(self.cntr > 0 || !self.timeLock){ console.log("rejected");
-			return;}
+		if(self.cntr > 0 || !self.timeLock)
+			return;
+
+		//Set state to "saving"
+		self.saved = 1;
+		notifyObservers();
 
 		//Acquire locks
 		self.cntr++;
@@ -188,14 +219,14 @@ angular.module('myApp')
 	}
 
 	self.destroy = function (){
-		console.log("please hold");
-
 		var xhr = new XMLHttpRequest();
 		xhr.open('DELETE', 'https://www.googleapis.com/drive/v3/files/' + gFile.id);
 		xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
 		xhr.onreadystatechange = function() {
-			if(xhr.readyState == 4 && xhr.status == 200)
-				console.log("destruction complete");
+			if(xhr.readyState == 4){
+				console.log("Profile destroyed");
+				window.location = "";
+			}
 		}
 		xhr.send();
 	}

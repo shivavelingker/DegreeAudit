@@ -10,8 +10,35 @@
 			Master Plan
 		</div>
 		<div class="right" ng-switch="saved">
-			<ons-button modifier="quiet red" ng-switch-when="0" ng-click="save()">Save</ons-button>
-			<ons-button modifier="quiet" ng-switch-when="1" ng-click="save()">Saved</ons-button>
+			<ons-button
+			 modifier="quiet red"
+			 ng-switch-when="0"
+			 ng-click="save()">
+			 	Save &nbsp;
+			 	<ons-icon
+			 	 class="middle"
+			 	 icon="ion-alert-circled"></ons-icon>
+			 </ons-button>
+
+			<ons-button
+			 modifier="quiet gray"
+			 ng-switch-when="1">
+			 	Saving &nbsp;
+			 	<ons-icon
+			 	 class="middle"
+			 	 spin
+			 	 icon="ion-load-c"></ons-icon>
+			 </ons-button>
+
+			<ons-button
+			 modifier="quiet"
+			 ng-switch-when="2"
+			 ng-click="save()">
+			 	Saved &nbsp;
+			 	<ons-icon
+			 	 class="middle"
+			 	 icon="ion-android-checkmark-circle"></ons-icon>
+			 </ons-button>
 		</div>
 	</ons-toolbar>
 

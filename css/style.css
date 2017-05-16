@@ -49,6 +49,22 @@ h3 {
   background-color: yellow;
 }
 
+.icon--middle{
+  vertical-align: middle;
+}
+
+.green{
+  color: green;
+}
+
+.red{
+  color: red;
+}
+
+.gray{
+  color: gray;
+}
+
 .button--light{
   color: #007FFF;
   border-color: #007FFF;
@@ -59,8 +75,22 @@ h3 {
   border-color: gray;
 }
 
+.button--gray{
+  color: gray;
+}
+
 .button--red{
   color: red;
+}
+
+.button--bOrange{
+  background-color: #fec006;
+  margin-top: 10px;
+}
+
+.button--bBlue{
+  background-color: #00bbd3;
+  margin-top: 10px;
 }
 
 .small{

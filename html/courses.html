@@ -1,4 +1,4 @@
-<ons-page>
+<ons-page ng-controller="CoursesCtrl">
 	<ons-toolbar>
 		<div class="left">
 			<ons-toolbar-button ng-click="menu.left.open()">
@@ -10,19 +10,26 @@
 		</div>
 	</ons-toolbar>
 
+	<ons-row>
 	<ons-list>
-		<ons-list-item>
-			<div class="center">
-				<i>Click on any course for more information</i>
-			</div>
+		<ons-row>
+		<ons-list-item
+			class="item"
+			modifier="chevron"
+			ons-lazy-repeat="CourseDelegate"
+			ng-click="editCourse(course)"
+			tappable>
+			<ons-col width="125px">
+				{{ abbr }}
+			</ons-col>
+			<ons-col width="100px">
+				{{ hours }} hr{{ pl }}
+			</ons-col>
+			<ons-col>
+				{{ name }}
+			</ons-col>
 		</ons-list-item>
-
-		<ons-list-item>
-			<input type="search"
-				   placeholder="Filter down courses instantly!"
-				   style="width: 100%; height: 100%; border: none;"
-				   class="search-input"></input>
-		</ons-list-item>
-
+		</ons-row>
 	</ons-list>
+	</ons-row>
 </ons-page>

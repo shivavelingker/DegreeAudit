@@ -1,7 +1,7 @@
-<ons-page ng-controller="CourseCtrl">
+<ons-page ng-controller="CourseCtrl" ng-init="init()">
 	<ons-toolbar>
 		<div class="left">
-			<ons-back-button>Done</ons-back-button>
+			<ons-back-button ng-click="save()">Done</ons-back-button>
 		</div>
 		<div class="center">
 			Edit Course
@@ -10,16 +10,20 @@
 
 	<div style="text-align: center; margin-top: 30px;">
 		<p>
-			<ons-input ng-model="nav.topPage.data.course.abbr" placeholder="Abbreviation"
+			<ons-input ng-model="course.abbr" placeholder="Abbreviation"
 				float modifier="underbar" style="width: 50%;"></ons-input>
 		</p>
 		<p>
-			<ons-input ng-model="nav.topPage.data.course.name" placeholder="Course Name"
+			<ons-input ng-model="course.name" placeholder="Course Name"
 				float modifier="underbar" style="width: 50%;"></ons-input>
 		</p>
 		<p>
-			Hours: {{ nav.topPage.data.course.hours }}
-			<ons-range style="width: 50%;" ng-model="nav.topPage.data.course.hours" min="1" max="10" step="1"></ons-range>
+			Hours: {{ course.hours }}
+			<ons-range style="width: 50%;" ng-model="course.hours" min="1" max="10" step="1"></ons-range>
+		</p>
+		<p>
+			<ons-button style="width: 25%;" ng-click="save()" modifier="bBlue">Save</ons-button>
+			<ons-button style="width: 25%;" ng-click="close()" modifier="bOrange">Cancel</ons-button>
 		</p>
 	</div>
 </ons-page>

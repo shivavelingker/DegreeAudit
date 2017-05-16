@@ -4,8 +4,6 @@ var semesters;
 
 var courses;
 
-var saved = 1;
-
 var updateData = function() {
   //Convert relevant data to string
   var dataD = angular.toJson(degrees);
@@ -22,27 +20,47 @@ angular.module('myApp')
   $scope.nav.pushPage('principal.html');
 }])
 
-.controller('Menu', function() {
-  this.load = function(page) {
+.controller('Menu', ['$scope', 'Data', function($scope, Data) {
+  $scope.saved = 2;
+
+  $scope.load = function(page) {
     content.load(page).then(function() {
         menu.left.close();
       });
   };
-})
+
+  $scope.init = function() {
+    console.log("register saver");
+    Data.registerObserver(saveStatus);
+  }
+
+  $scope.save = function() {
+    Data.save(updateData());
+  }
+
+  var saveStatus = function() {
+    $scope.saved = Data.saved;
+  }
+
+}])
 
 .controller("LoginCtrl", function($scope, $timeout, GAuth, Data) {
   $scope.init = function (){
-    GAuth.registerObserver(loginStatus);
-    GAuth.login();
+    if(!GAuth.loginStatus())
+      GAuth.registerObserver(loginStatus);
+    else
+      loginStatus();
   }
 
   var loginStatus = function(){
     $scope.loggedIn = GAuth.loginStatus();
-    if($scope.loggedIn)
-      Data.registerObserver(parseData);
+    Data.registerObserver(parseData);
+    Data.pull();
   }
 
   var parseData = function() {
+    Data.deregister(parseData);
+
     var str = (Data.fileData ? Data.fileData.split("\n") : [null, null, null]);
 
     degrees = (str[0] && str[0] != undefined ? json_parse(str[0]) : []);
@@ -50,12 +68,69 @@ angular.module('myApp')
     semesters = (str[1] && str[1] != undefined ? json_parse(str[1]) : []);
 
     courses = (str[2] && str[2] != undefined ? json_parse(str[2]) : []);
-
-    Data.deregister(parseData);
   }
 })
 
-.controller("CourseCtrl", function($scope, $timeout, Data) {
+.controller("CourseCtrl", ['$scope', '$timeout', 'Data', function($scope, $timeout, Data){
+  $scope.init = function(){
+    $timeout($scope.initialize, 50);
+  }
+
+  $scope.initialize = function() {
+    $scope.old = nav.topPage.data.course;
+    $scope.course = angular.copy(nav.topPage.data.course);
+  }
+
+
+  $scope.close = function() {
+    nav.popPage();
+  }
+
+  $scope.save = function() {
+    //Check if course was modified
+    if(angular.equals($scope.old, $scope.course))
+      return;
+
+    //Overwrite old course if applicable
+    var pos = courses.indexOf($scope.old);
+    courses[pos] = $scope.course;
+
+    //Save changes to file
+    Data.save(updateData());
+
+    //Pop page
+    $scope.close();
+  }
+}])
+
+.controller("CoursesCtrl", function($scope, $timeout) {
+  $scope.courses = courses;
+
+  $scope.CourseDelegate = {
+    configureItemScope: function(index, itemScope) {
+      itemScope.course = $scope.courses[index];
+      itemScope.abbr = $scope.courses[index].abbr;
+      itemScope.name = $scope.courses[index].name;
+      itemScope.hours = $scope.courses[index].hours;
+      if(itemScope.hours > 1)
+        itemScope.pl = "s";
+    },
+    calculateItemHeight: function(index) {
+      return 44;
+    },
+    countItems: function() {
+      return $scope.courses.length;
+    }
+  }
+
+  $scope.$watch('courses', function(){
+    $scope.CourseDelegate.refresh();
+    courses = $scope.courses;
+  }, true)
+
+  $scope.editCourse = function(chosen){
+    nav.pushPage('html/course.html', { data : { course: chosen } });
+  }
 })
 
 .controller('DegreeCtrl', ['$scope', '$timeout', function($scope, $timeout) {
@@ -66,7 +141,7 @@ angular.module('myApp')
   $scope.chosen = null;
   $scope.semesters = null;
   $scope.courses = null;
-  $scope.saved = saved;
+  $scope.saved = Data.saved;
 
   $scope.gridsterOpts = {
     columns: 1, // the width of the grid, in columns
@@ -103,8 +178,10 @@ angular.module('myApp')
   };
 
   $scope.init = function() {
-    Data.registerObserver(initialize);
-    Data.pull();
+    if(Data.fileData)
+      initialize();
+    else
+      Data.registerObserver(initialize);
   }
 
   var initialize = function() {
@@ -124,7 +201,6 @@ angular.module('myApp')
     $timeout(50);
 
     $scope.$watch('courses', function(n, o){
-      console.log("update through watch");
       //Update semester hours
       $scope.recalculate();
 
@@ -134,6 +210,8 @@ angular.module('myApp')
       //Update display
       $scope.update();
     }, true);
+
+    Data.registerObserver(watchChanges);
   }
 
   $scope.addCourse = function() {
@@ -212,9 +290,8 @@ angular.module('myApp')
   }
 
   $scope.dirty = function() {
-    $scope.saved = 0;
-    saved = $scope.saved;
     $scope.update();
+    Data.dirty();
   }
 
   $scope.flipStatus = function() {
@@ -307,11 +384,11 @@ angular.module('myApp')
   }
 
   $scope.save = function() {
+    //Make sure changes have been caught
+    $scope.update();
+
     //Save changes to file
     Data.save(updateData());
-
-    $scope.saved = 1;
-    saved = $scope.saved;
   }
 
   $scope.update = function() {
@@ -324,7 +401,14 @@ angular.module('myApp')
     $timeout(50);
   }
 
-  $scope.destroy = function() {
+  var watchChanges = function() {
+    $scope.saved = Data.saved;
+  }
+}])
+
+.controller("SettingsCtrl", ['$scope', 'Data', function($scope, Data) {
+  $scope.delete = function(){
+    angular.element(document.querySelector('#delButton')).attr("disabled","true");
     Data.destroy();
   }
 }])
