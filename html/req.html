@@ -1,0 +1,57 @@
+<ons-page ng-controller="ReqCtrl" ng-init="init()">
+	<ons-toolbar>
+		<div class="left">
+			<ons-back-button ng-click="save()">Done</ons-back-button>
+		</div>
+		<div class="center">
+			Modify Requirement
+		</div>
+	</ons-toolbar>
+
+	<div style="text-align: center; margin-top: 30px;">
+		<p>
+			<ons-input ng-model="req.title" placeholder="Title"
+				float modifier="underbar" style="width: 50%;"></ons-input>
+		</p>
+		<p>
+			Hours: {{ req.hours }}
+			<ons-range style="width: 50%;" ng-model="req.hours" min="1" max="25" step="1"></ons-range>
+		</p>
+		<p>
+			<ons-list modifier="inset" style="width: 75%; margin-left: auto; margin-right: auto;">
+				<ons-list-header>Satisfying courses</ons-list-header>
+				<ons-list-item ng-repeat="satisfy in req.satisfy">
+					{{ course(satisfy) }}
+					<ons-col width="125px">
+						{{ chosen.abbr }}
+					</ons-col>
+					<ons-col width="100px">
+						{{ chosen.hours }}
+						{{ pl() }}
+					</ons-col>
+					<ons-col>
+						{{ chosen.name }}
+					</ons-col>
+					<ons-col width="50px">
+						<ons-button modifier="quiet" ng-click="rmClass(satisfy)">
+							<ons-icon icon="ion-ios-close-outline"></ons-icon>
+						</ons-button>
+					</ons-col>
+				</ons-list-item>
+				<ons-list-item
+					ng-click="addClass()"
+					modifier="chevron"
+					tappable>
+					<i>Add course</i>
+				</ons-list-item>
+			</ons-list>
+		</p>
+		<p>
+			<ons-button style="width: 25%;" ng-click="save()" modifier="bBlue">Save</ons-button>
+			<ons-button style="width: 25%;" ng-click="close()" modifier="bOrange">Cancel</ons-button>
+		</p>
+		<p>
+			<ons-button style="width: 50%" ng-click="delete()" modifier="bRed">Delete</ons-button>
+		</p>
+	</div>
+</ons-page>

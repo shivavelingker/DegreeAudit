@@ -1,9 +1,16 @@
-<ons-page ng-controller="CoursesCtrl">
+<ons-page ng-controller="CoursesCtrl" ng-init="init()">
 	<ons-toolbar>
-		<div class="left">
-			<ons-toolbar-button ng-click="menu.left.open()">
-              <ons-icon icon="md-menu"></ons-icon>
-            </ons-toolbar-button>
+		<div class="left" ng-switch="backButton">
+			<div ng-switch-when="false">
+				<ons-toolbar-button ng-click="menu.left.open()">
+					<ons-icon icon="md-menu"></ons-icon>
+            	</ons-toolbar-button>
+        	</div>
+        	<div ng-switch-when="true">
+        		<ons-back-button>
+        			Cancel
+        		</ons-back-button>
+        	</div>
 		</div>
 		<div class="center">
 			All Classes
@@ -17,7 +24,7 @@
 			class="item"
 			modifier="chevron"
 			ons-lazy-repeat="CourseDelegate"
-			ng-click="editCourse(course)"
+			ng-click="action(course)"
 			tappable>
 			<ons-col width="125px">
 				{{ abbr }}

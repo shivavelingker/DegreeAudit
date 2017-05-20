@@ -1,0 +1,147 @@
+<ons-page ng-controller="DegreeCtrl" ng-init="init()">
+	<ons-toolbar>
+		<div class="left">
+			<ons-toolbar-button ng-click="menu.left.open()">
+              <ons-icon icon="md-menu"></ons-icon>
+            </ons-toolbar-button>
+		</div>
+		<div class="center">
+			Degree Plans
+		</div>
+		<div class="right" ng-switch="saved">
+			<ons-button
+			 modifier="quiet red"
+			 ng-switch-when="0"
+			 ng-click="save()">
+			 	Save &nbsp;
+			 	<ons-icon
+			 	 class="middle"
+			 	 icon="ion-alert-circled"></ons-icon>
+			 </ons-button>
+
+			<ons-button
+			 modifier="quiet gray"
+			 ng-switch-when="1">
+			 	Saving &nbsp;
+			 	<ons-icon
+			 	 class="middle"
+			 	 spin
+			 	 icon="ion-load-c"></ons-icon>
+			 </ons-button>
+
+			<ons-button
+			 modifier="quiet"
+			 ng-switch-when="2"
+			 ng-click="save()">
+			 	Saved &nbsp;
+			 	<ons-icon
+			 	 class="middle"
+			 	 icon="ion-android-checkmark-circle"></ons-icon>
+			 </ons-button>
+		</div>
+	</ons-toolbar>
+
+	<ons-popover cancelable direction="left right" var="popover">
+		<div style="padding: 10px;">
+			<ons-list>
+				<ons-list-item ng-click="addReq()" tappable>
+					Add requirement
+				</ons-list-item>
+				<ons-list-item ng-click="rename()" tappable>
+					Rename
+				</ons-list-item>
+				<ons-list-item ng-click="moveLeft()" tappable>
+					Move left
+				</ons-list-item>
+				<ons-list-item ng-click="moveRight()" tappable>
+					Move right
+				</ons-list-item>
+				<ons-list-item ng-click="delete()" tappable>
+					Delete
+				</ons-list-item>
+			</ons-list>
+		</div>
+	</ons-popover>
+
+	<ons-row style="padding: 10px;">
+		<ons-col ng-repeat="degree in degrees" style="padding-right: 5px;">
+			<ons-row style="margin-bottom: 10px; text-align: center;">
+				<ons-button modifier="light" ng-click="modifyDegree(degree)" style="text-align: center;">
+					{{ degree.name }}
+				</ons-button>
+			</ons-row>
+			<ons-row style="margin-bottom: 10px;">
+				Completed: {{ degree.value }}% | 
+				Planned: {{ degree.planned }}% |
+				Total: {{ degree.secondary }}%
+				<br>
+				<ons-progress-bar
+					value="{{ degree.value }}"
+					secondary-value="{{ degree.secondary }}"
+					style="width: 100%;">
+				</ons-progress-bar>
+				<br>
+			</ons-row>
+			<ons-row ng-repeat="req in degree.reqs" style="padding-bottom: 5px;">
+				<ons-list class="small" style="width: 100%;">
+					<ons-list-item>
+						<div class="left" style="color: {{ req.reqColor }};">
+							<ons-icon icon="ion-alert-circled" ng-if="req.warning == true">&nbsp;&nbsp;</ons-icon>
+							{{ req.title }} : {{ req.hours }}
+						</div>
+						<div class="right">
+							<ons-button modifier="quiet" ng-click="moveUp(req.ID, degree.ID)">
+								<ons-icon icon="ion-ios-arrow-thin-up">
+								</ons-icon>
+							</ons-button>&nbsp;&nbsp;&nbsp;
+
+							<ons-button modifier="quiet" ng-click="moveDown(req.ID, degree.ID)">
+								<ons-icon icon="ion-ios-arrow-thin-down"></ons-icon>
+							</ons-button>&nbsp;&nbsp;&nbsp;
+
+							<ons-button modifier="quiet" ng-click="editReq(req.ID, degree.ID)">
+								<ons-icon icon="ion-ios-compose-outline"></ons-icon>
+							</ons-button>
+						</div>
+					</ons-list-item>
+				</ons-list>
+					<ons-list modifier="inset" class="small" style="margin-top: 5px; width: 100%;">
+						<ons-list-item modifier="longdivider" ng-repeat="satisfy in req.satisfy">
+							{{ course(satisfy) }}
+							<div class="left" ng-switch="status" style="color: {{ color }};">
+								<ons-icon
+									ng-switch-when="0"
+									icon="ion-checkmark">
+								</ons-icon>
+								
+								<ons-icon
+									ng-switch-when="1"
+									icon="ion-checkmark">
+								</ons-icon>
+								
+								<ons-icon
+									ng-switch-when="2"
+									icon="ion-close">
+								</ons-icon>
+							</div>
+							<div class="center" style="color: {{ color }};">
+								{{ class.abbr }} - {{ class.name }}
+							</div>
+						</ons-list-item>
+					</ons-list>
+			</ons-row>
+		</ons-col>
+	</ons-row>
+
+	<ons-speed-dial position="bottom right" direction="up" ripple>
+		<ons-fab>
+			<ons-icon icon="md-plus"></ons-icon>
+		</ons-fab>
+		<ons-speed-dial-item>
+			<ons-icon icon="md-book" ng-click="addCourse()"></ons-icon>
+		</ons-speed-dial-item>
+		<ons-speed-dial-item>
+			<ons-icon icon="ion-university" ng-click="addDegree()"></ons-icon>
+		</ons-speed-dial-item>
+	</ons-speed-dial>
+</ons-page>

@@ -1,8 +1,20 @@
 var degrees;
 
+var getDegreePos = function(ID) {
+  return degrees.map(function(e) { return e.ID; }).indexOf(ID);
+}
+
+var getReqPos = function(ID, degreePos) {
+  return degrees[degreePos].reqs.map(function(e) { return e.ID; }).indexOf(ID);
+}
+
 var semesters;
 
 var courses;
+
+var getCourse = function(ID) {
+  return courses[courses.map(function(e) { return e.ID; }).indexOf(ID)];
+}
 
 var updateData = function() {
   //Convert relevant data to string
@@ -13,6 +25,28 @@ var updateData = function() {
   //Parse data together
   return dataD + "\n" + dataS + "\n" + dataC;
 }
+
+var orderObjectBy = 
+ function(input, attribute) {
+    if (!angular.isObject(input)) return input;
+
+    var array = [];
+    for(var objectKey in input) {
+        array.push(input[objectKey]);
+    }
+
+    array.sort(function(a, b){
+      a = a[attribute].toUpperCase();
+      b = b[attribute].toUpperCase();
+
+      if (a < b)
+        return -1;
+      if (a > b)
+        return 1;
+      return 0;
+    });
+    return array;
+ };
 
 angular.module('myApp')
 
@@ -86,6 +120,18 @@ angular.module('myApp')
     nav.popPage();
   }
 
+  $scope.delete = function() {
+    //Remove course from array
+    var pos = courses.indexOf($scope.old);
+    courses.splice(pos, 1);
+
+    //Save changes to file
+    Data.save(updateData());
+
+    //Pop page
+    $scope.close();
+  }
+
   $scope.save = function() {
     //Check if course was modified
     if(angular.equals($scope.old, $scope.course))
@@ -103,15 +149,26 @@ angular.module('myApp')
   }
 }])
 
-.controller("CoursesCtrl", function($scope, $timeout) {
+.controller("CoursesCtrl", function($scope, $timeout, Data) {
   $scope.courses = courses;
+  $scope.ordered = orderObjectBy($scope.courses, 'abbr');
+  $scope.backButton = false;
+
+  $scope.init = function() {
+    $timeout(initialize, 500);
+  }
+
+  var initialize = function() {
+    if(nav.topPage.data.actionable != undefined)
+      $scope.backButton = true;
+  }
 
   $scope.CourseDelegate = {
     configureItemScope: function(index, itemScope) {
-      itemScope.course = $scope.courses[index];
-      itemScope.abbr = $scope.courses[index].abbr;
-      itemScope.name = $scope.courses[index].name;
-      itemScope.hours = $scope.courses[index].hours;
+      itemScope.course = $scope.ordered[index];
+      itemScope.abbr = $scope.ordered[index].abbr;
+      itemScope.name = $scope.ordered[index].name;
+      itemScope.hours = $scope.ordered[index].hours;
       if(itemScope.hours > 1)
         itemScope.pl = "s";
     },
@@ -123,17 +180,445 @@ angular.module('myApp')
     }
   }
 
-  $scope.$watch('courses', function(){
+  $scope.$watch('courses', function() {
     $scope.CourseDelegate.refresh();
     courses = $scope.courses;
-  }, true)
+  }, true);
 
-  $scope.editCourse = function(chosen){
+  $scope.action = function(chosen) {
+    if(nav.topPage.data.actionable){
+      nav.topPage.data.actionable(
+                  nav.topPage.data.degPos,
+                  nav.topPage.data.reqPos,
+                  chosen.ID);
+      Data.save(updateData());
+      nav.popPage();
+    }
+
+    else
+      $scope.editCourse(chosen);
+  }
+
+  $scope.editCourse = function(chosen) {
     nav.pushPage('html/course.html', { data : { course: chosen } });
   }
 })
 
-.controller('DegreeCtrl', ['$scope', '$timeout', function($scope, $timeout) {
+.controller("ReqCtrl", ['$scope', '$timeout', 'Data', function($scope, $timeout, Data){
+  $scope.degrees = null;
+
+  $scope.init = function() {
+    $timeout(initialize, 50);
+  }
+
+  var initialize = function() {
+    $scope.degrees = degrees;
+
+    $scope.reqPos = nav.topPage.data.reqPos;
+    $scope.degPos = nav.topPage.data.degPos;
+  
+    $scope.req = angular.copy($scope.degrees[$scope.degPos].reqs[$scope.reqPos]);
+    $scope.old = angular.copy($scope.req);
+
+    Data.registerObserver(watchChanges);
+  }
+
+  var action = function(degPos, reqPos, courseID) {
+    //Function to allow course to be added to this req
+    if(degrees[degPos].reqs[reqPos].satisfy.indexOf(courseID) < 0)
+      degrees[degPos].reqs[reqPos].satisfy.push(courseID);
+  }
+
+  $scope.addClass = function() {
+    nav.pushPage("html/courses.html", {data: {actionable: action, degPos: $scope.degPos, reqPos: $scope.reqPos}});
+  }
+
+  $scope.course = function(ID) {
+    $scope.chosen = getCourse(ID);
+  }
+
+  $scope.close = function() {
+    nav.popPage();
+  }
+
+  $scope.delete = function() {
+    //Splice req out of array
+    degrees[$scope.degPos].reqs.splice($scope.reqPos, 1);
+
+    //Save changes to file
+    Data.save(updateData());
+
+    $scope.close();
+  }
+
+  $scope.pl = function() {
+    if($scope.chosen.hours > 1)
+      return "hrs";
+    return "hr";
+  }
+
+  $scope.rmClass = function(ID) {
+    var pos = $scope.req.satisfy.indexOf(ID);
+    $scope.req.satisfy.splice(pos, 1);
+  }
+
+  $scope.save = function() {
+    //Check if modified
+    if(angular.equals($scope.old, $scope.req)){
+      $scope.close();
+      return;
+    }
+
+    //Overwrite old var
+    degrees[$scope.degPos].reqs[$scope.reqPos] = $scope.req;
+
+    //Save changes to file
+    Data.save(updateData());
+
+    $scope.close();
+  }
+
+  var watchChanges = function() {
+    $scope.degrees = degrees;
+    $scope.req = $scope.degrees[$scope.degPos].reqs[$scope.reqPos];
+  }
+}])
+
+.controller('DegreeCtrl', ['$scope', '$timeout', 'Data', function($scope, $timeout, Data) {
+  $scope.chosen = null;
+  $scope.degrees = null;
+  $scope.reqs = [];
+  $scope.courses = null;
+  $scope.saved = Data.saved;
+  $scope.class = null;
+  $scope.status = 0;
+
+  $scope.init = function() {
+    if(Data.fileData)
+      initialize();
+    else
+      Data.registerObserver(initialize);
+  }
+
+  var initialize = function() {
+    console.log("degree init");
+    Data.deregister(initialize);
+
+    $scope.degrees = degrees;
+    $scope.courses = courses;
+
+    //Calculate degree percentages
+    $scope.recalculate();
+
+    //Update display
+    $timeout(50);
+
+    $scope.$watch('courses', function(n, o){
+      //Check for dirtiness
+      if(n != o)
+        $scope.dirty();
+      //Update display
+      $scope.update();
+    }, true);
+
+    //Watch for changes in all data
+    Data.registerObserver(watchChanges);
+  }
+
+  $scope.addDegree = function() {
+    ons.notification.prompt({message: "Degree Name", cancelable: true})
+       .then(function(name) {
+          //Create degree object
+          var degree = {
+            ID: Math.floor((Math.random() * 10000) + 1),
+            name: name,
+            reqs: []
+          };
+
+          //Insert new degree at end
+          $scope.degrees.push(degree);
+
+          //Set dirty and update display
+          $scope.dirty();
+       })
+       .catch(function(){
+        return true;
+       });
+  }
+
+  $scope.addReq = function() {
+    var newReq = {
+      ID: Math.floor((Math.random() * 10000) + 1),
+      title: "",
+      hours: 1,
+      satisfy: []
+    };
+
+    //Close popover
+    popover.hide();
+
+    //Get title of requirement
+    ons.notification.prompt({message: "Requirement", cancelable: true})
+      .then(function(title) {
+        //Get number of hours
+        ons.notification.prompt({message: "Hours", cancelable: true})
+          .then(function(hours){
+            //Update course
+            newReq.title = title;
+            newReq.hours = hours;
+
+            console.log($scope.chosen);
+
+            //Insert new course at end of requirement list
+            $scope.chosen.reqs.push(newReq);
+
+            //Set dirty and update global data
+            $scope.dirty();
+          })
+          .catch(function() {
+            return true;
+          })
+      })
+      .catch(function() {
+        return true;
+      });
+  }
+
+  $scope.course = function(ID) {
+    $scope.class = getCourse(ID);
+    //Check when course was taken
+    var semester = $scope.class.col;
+    if(semesters[semester].completed){
+      $scope.status = 0;
+      $scope.color = "#00cd00";
+    }
+    else if(semester == semesters.length - 1){
+      $scope.status = 2;
+      $scope.color = "#FFA500";
+    }
+    else{
+      $scope.status = 1;
+      $scope.color = "gray";
+    }
+  }
+
+  $scope.editReq = function(ID, degree) {
+    //Get information
+    var degreePos = getDegreePos(degree);
+
+    //Push page for editing
+    nav.pushPage("html/req.html", {data: { degPos: degreePos, reqPos: getReqPos(ID, degreePos) }});
+  }
+
+  $scope.delete = function() {
+    //Remove degree from list of degrees
+    var pos = getDegreePos($scope.chosen.ID);
+    $scope.degrees.splice(pos, 1);
+
+    //Close popover
+    popover.hide();
+
+    $scope.dirty();
+  }
+
+  $scope.dirty = function() {
+    $scope.update();
+    Data.dirty();
+  }
+
+  $scope.modifyDegree = function(degree) {
+      $scope.chosen = degree;
+      console.log("chosen "+$scope.chosen);
+      popover.show(event);
+  }
+
+  $scope.moveLeft = function() {
+    //Find degrees's index
+    var pos = getDegreePos($scope.chosen.ID);
+
+    //Prevent degree from going out of bounds
+    if (pos > 0) {
+      //Move indices of degrees
+      var hold = $scope.degrees[pos-1];
+      $scope.degrees[pos-1] = $scope.chosen;
+      $scope.degrees[pos] = hold;
+
+      $scope.dirty();
+    }
+  }
+
+  $scope.moveRight = function() {
+    //Find degrees's index
+    var pos = getDegreePos($scope.chosen.ID);
+
+    //Prevent degree from going out of bounds
+    if (pos + 1 < $scope.degrees.length) {
+
+      //Move indices of degrees
+      var hold = $scope.degrees[pos+1];
+      $scope.degrees[pos+1] = $scope.chosen;
+      $scope.degrees[pos] = hold;
+
+      $scope.dirty();
+    }
+  }
+
+  $scope.moveUp = function(ID, degree) {
+    //Find degrees's index
+    var pos = getDegreePos(degree);
+
+    //Find req's index
+    var rPos = getReqPos(ID, pos);
+
+    //Out of bounds check
+    if(rPos == 0)
+      return;
+
+    //Switch
+    var current = $scope.degrees[pos].reqs[rPos];
+    $scope.degrees[pos].reqs[rPos] = $scope.degrees[pos].reqs[rPos - 1];
+    $scope.degrees[pos].reqs[rPos - 1] = current;
+
+    $scope.dirty();
+  }
+
+  $scope.moveDown = function(ID, degree) {
+    //Find degrees's index
+    var pos = getDegreePos(degree);
+
+    //Find req's index
+    var rPos = getReqPos(ID, pos);
+
+    //Out of bounds check
+    if(rPos == $scope.degrees[pos].reqs.length - 1)
+      return;
+
+    //Switch
+    var current = $scope.degrees[pos].reqs[rPos];
+    $scope.degrees[pos].reqs[rPos] = $scope.degrees[pos].reqs[rPos + 1];
+    $scope.degrees[pos].reqs[rPos + 1] = current;
+
+    $scope.dirty();
+  }
+
+  $scope.recalculate = function() {
+    //Determine coloration
+    $scope.reqStatus();
+
+    //Loop through all degrees calculating info
+    angular.forEach($scope.degrees, function(degree){
+      degree.value = 0;
+      degree.secondary = 0;
+      degree.total = 0;
+
+      //Add up total required hours
+      angular.forEach(degree.reqs, function(req){
+        degree.total += parseInt(req.hours);
+
+        var value = 0;
+        var secondary = 0;
+
+        //Add up total met hours
+        angular.forEach(req.satisfy, function(satisfy){
+          var course = getCourse(satisfy);
+          var semester = parseInt(course.col);
+
+          //Class has been taken
+          if(semesters[semester].completed){
+            value += parseInt(course.hours);
+          }
+          //Class hasn't been sorted yet
+          else if(semester == semesters.length - 1){}
+          //Class has been planned
+          else{
+            secondary += parseInt(course.hours);
+          }
+        });
+
+        //Check whether completed satisfying courses exceed max
+        var min = Math.min(req.hours, value);
+        degree.value += min;
+
+        //Check whether pending satisfying courses exceed max
+        degree.secondary += Math.min(req.hours - min, secondary);
+      })
+
+      //Divison by zero check
+      if(degree.total == 0)
+        return;
+
+      //Save number of planned hours; calculate percentage
+      degree.planned = degree.secondary;
+      degree.planned /= degree.total;
+      degree.planned *= 100;
+      degree.planned = Math.min(100,Math.round(degree.planned));
+
+      //Get total number of hours
+      degree.secondary += degree.value;
+
+      //Calculate percentage
+      degree.value /= degree.total;
+      degree.value *= 100;
+      degree.value = Math.round(degree.value);
+
+      //Calculate percentage
+      degree.secondary /= degree.total;
+      degree.secondary *= 100;
+      degree.secondary = Math.round(degree.secondary);
+    });
+  }
+
+  $scope.rename = function(ID) {
+    //Allow degree to be renamed
+    ons.notification.prompt({message: "Renaming: " + $scope.chosen.name, cancelable: 'true'})
+      .then(function(newName) {
+          $scope.chosen.name = newName;
+          $scope.dirty();
+      })
+      .catch(function(){
+        return true;
+      });
+
+    //Close popover
+    popover.hide();
+  }
+
+  $scope.reqStatus = function(req) {
+    console.log("reqStatus");
+    angular.forEach($scope.degrees, function(degree){
+      angular.forEach(degree.reqs, function(req){
+        var hours = parseInt(req.hours);
+        var met = 0;
+        angular.forEach(req.satisfy, function(courseID){
+          met += parseInt(getCourse(courseID).hours);
+        });
+        if(met < hours){
+          req.reqColor = "maroon";
+          req.warning = true;
+        }
+        else{
+          req.reqColor = "black";
+          req.warning = false;
+        }
+        console.log(req.title);
+        console.log(met, hours);
+      })
+    })
+  }
+
+  $scope.update = function() {
+    $scope.recalculate();
+
+    degrees = $scope.degrees;
+
+    $timeout(50);
+  }
+
+  var watchChanges = function() {
+    $scope.saved = Data.saved;
+
+    $scope.recalculate();
+  }
 }])
 
 // Controller for package form
@@ -211,6 +696,7 @@ angular.module('myApp')
       $scope.update();
     }, true);
 
+    //Watch for changes in all data
     Data.registerObserver(watchChanges);
   }
 
@@ -220,6 +706,7 @@ angular.module('myApp')
       sizeY: 1,
       row: 0,
       col: $scope.semesters.length - 1,
+      ID: Math.floor((Math.random() * 10000) + 1),
       abbr: "",
       name: "",
       hours: 3
@@ -273,18 +760,27 @@ angular.module('myApp')
   }
 
   $scope.delete = function() {
-    //Remove semester from list of semesters
+    //Get position of semester
     var pos = $scope.semesters.map(function(e) { return e.name; }).indexOf($scope.chosen.name);
+
+    //Reorder all courses; move all orphaned courses to "Unsorted" category
+    angular.forEach($scope.courses, function(course) {
+      //Send courses of this semester to "Unsorted"
+      if(course.col == pos)
+        course.col = $scope.semesters.length - 1;
+      //Reposition semesters to the right
+      else if(course.col > pos)
+        course.col--;
+    })
+
+    //Remove semester from list of semesters
     $scope.semesters.splice(pos, 1);
 
     //Update Gridster
     $scope.gridsterOpts.columns = $scope.semesters.length;
 
-    //Move all orphaned courses to "Unsorted" category
-    angular.forEach($scope.courses, function(course) {
-      if(course.col == pos)
-        course.col = $scope.semesters.length;
-    })
+    //Close popover
+    popover.hide();
 
     $scope.dirty();
   }
@@ -311,7 +807,7 @@ angular.module('myApp')
     //Find semester's index
     var pos = $scope.semesters.map(function(e) { return e.name; }).indexOf($scope.chosen.name);
 
-    //Prevent semesters from into negative indices of array
+    //Prevent semester from going out of bounds
     if (pos > 0) {
 
       //Move indices of semesters
@@ -326,6 +822,8 @@ angular.module('myApp')
         else if(course.col == pos - 1)
           course.col++;
       });
+
+      //Reposition popover?
 
       $scope.dirty();
     }
@@ -351,6 +849,8 @@ angular.module('myApp')
           course.col--;
       })
 
+      //Reposition popover?
+
       $scope.dirty();
     }
   }
@@ -374,21 +874,14 @@ angular.module('myApp')
     ons.notification.prompt({message: "Renaming: " + $scope.chosen.name, cancelable: 'true'})
       .then(function(newName) {
           $scope.chosen.name = newName;
-          $scope.update();
+          $scope.dirty();
       })
       .catch(function(){
         return true;
       });
 
-    $scope.dirty();
-  }
-
-  $scope.save = function() {
-    //Make sure changes have been caught
-    $scope.update();
-
-    //Save changes to file
-    Data.save(updateData());
+    //Close popover
+    popover.hide();
   }
 
   $scope.update = function() {
