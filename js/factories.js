@@ -1,8 +1,60 @@
 
 angular.module('myApp')
 
+//Service to login to Facebook
+.service('FBAuth', function ($timeout){
+	var self = this;
+	var loggedIn = false;
+	var observers = [];
+
+	//NOTIFICATION SYSTEM
+	var notifyObservers = function(){
+		angular.forEach(observers, function(observer){
+			$timeout();
+			observer();
+		});
+		$timeout();
+	};
+
+	self.registerObserver = function(observer){
+		if(observers.indexOf(observer) < 0)
+			observers.push(observer);
+	};
+
+	self.initialize = function (){
+		//Wait until SDK has been loaded
+		if(typeof FB == 'undefined'){
+			$timeout(self.init);
+			return;
+		}
+
+		FB.getLoginStatus(function (response){
+		    self.process(response);
+		}, true);
+	}
+
+	self.loginStatus = function (){
+		return self.loggedIn;
+	}
+
+	self.process = function(response) {
+		if(response.status == "connected"){
+			self.loggedIn = true;
+			notifyObservers();
+		}
+		else{
+			FB.login();
+			FB.getLoginStatus(function (response){
+			    self.process(response);
+			}, true);			
+		}
+	}
+
+	self.initialize();
+})
+
 //Service to login to Google
-.service('GAuth', function ($timeout){
+.service('GAuth', function ($timeout, FBAuth){
 	var self = this;
 	var loggedIn = false;
 	var observers = [];

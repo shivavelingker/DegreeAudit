@@ -1,7 +1,7 @@
 <ons-page ng-controller="LoginCtrl" ng-init="init()">
 	<ons-toolbar>
 		<div class="left">
-			<ons-toolbar-button ng-click="menu.left.open()">
+			<ons-toolbar-button id="mainMenu" ng-click="menu.left.open()" disabled="true">
               <ons-icon icon="md-menu"></ons-icon>
             </ons-toolbar-button>
 		</div>
@@ -12,17 +12,48 @@
 
 	<div class="centered">
 		<br>
-		<p ng-if="!loggedIn">
-			Attempting to login through Google...
+		<p ng-if="!FLoggedIn">
+			Connecting to Facebook...
 				<br><br>
 				<ons-progress-circular indeterminate>
 				</ons-progress-circular>
 		</p>
-		<p ng-if="loggedIn">
-			Login successful!
+		<p ng-if="FLoggedIn">
+			Facebook login successful!
 				<br><br>
 				<ons-icon icon="ion-checkmark" size="40px">
 				</ons-icon>
 		</p>
+
+		<br>
+
+		<p ng-if="!GLoggedIn">
+			Getting data from Google...
+				<br><br>
+				<ons-progress-circular indeterminate>
+				</ons-progress-circular>
+		</p>
+		<p ng-if="GLoggedIn">
+			Google login successful!
+				<br><br>
+				<ons-icon icon="ion-checkmark" size="40px">
+				</ons-icon>
+		</p>
+
+		<br>
+
+		<p ng-if="!DPulled">
+			Preparing app...
+				<br><br>
+				<ons-progress-circular indeterminate>
+				</ons-progress-circular>
+		</p>
+		<p ng-if="DPulled">
+			App is ready to use!
+				<br><br>
+				<ons-icon icon="ion-checkmark" size="40px">
+				</ons-icon>
+		</p>
+
 	</div>
 </ons-page>

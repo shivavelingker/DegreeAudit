@@ -59,9 +59,10 @@ angular.module('myApp')
 }])
 
 .controller('Menu', ['$scope', 'Data', function($scope, Data) {
-  $scope.saved = 2;
+  $scope.saved = Data.saved;
 
   $scope.load = function(page) {
+    console.log("hu");
     content.load(page).then(function() {
         menu.left.close();
       });
@@ -81,8 +82,13 @@ angular.module('myApp')
 
 }])
 
-.controller("LoginCtrl", function($scope, $timeout, GAuth, Data) {
+.controller("LoginCtrl", function($scope, $timeout, FBAuth, GAuth, Data) {
+  $scope.DPulled = false;
+
   $scope.init = function (){
+    //Initialize FB
+    FBAuth.registerObserver(loginStatus);
+
     if(!GAuth.loginStatus())
       GAuth.registerObserver(loginStatus);
     else
@@ -90,9 +96,22 @@ angular.module('myApp')
   }
 
   var loginStatus = function(){
-    $scope.loggedIn = GAuth.loginStatus();
+    //Get login statuses
+    $scope.FLoggedIn = FBAuth.loginStatus();
+    $scope.GLoggedIn = GAuth.loginStatus();
+
+    //Pull data from Google file
     Data.registerObserver(parseData);
     Data.pull();
+
+    if(!$scope.FLoggedIn)
+      FBAuth.initialize();
+
+    //Allow menu to become active
+    if($scope.FLoggedIn && $scope.GLoggedIn){
+      angular.element(document.querySelector('#mainMenu')).removeAttr("disabled");
+      FB.AppEvents.logPageView("Logged in");
+    }
   }
 
   var parseData = function() {
@@ -105,6 +124,8 @@ angular.module('myApp')
     semesters = (str[1] && str[1] != undefined ? json_parse(str[1]) : []);
 
     courses = (str[2] && str[2] != undefined ? json_parse(str[2]) : []);
+
+    $scope.DPulled = true;
   }
 })
 
@@ -116,6 +137,8 @@ angular.module('myApp')
   $scope.initialize = function() {
     $scope.old = nav.topPage.data.course;
     $scope.course = angular.copy(nav.topPage.data.course);
+
+    FB.AppEvents.logPageView("Editing course");
   }
 
 
@@ -165,6 +188,8 @@ angular.module('myApp')
     if(nav.topPage.data.actionable != undefined)
       $scope.backButton = true;
     Data.registerObserver($scope.refresh);
+
+    FB.AppEvents.logPageView("Courses view");
   }
 
   $scope.CourseDelegate = {
@@ -225,6 +250,7 @@ angular.module('myApp')
     $scope.old = angular.copy($scope.req);
 
     Data.registerObserver(watchChanges);
+    FB.AppEvents.logPageView("Editing requirement");
   }
 
   var action = function(degPos, reqPos, courseID) {
@@ -366,6 +392,8 @@ angular.module('myApp')
 
     //Watch for changes in all data
     Data.registerObserver(watchChanges);
+
+    FB.AppEvents.logPageView("Degree view");
   }
 
   $scope.addCourse = function() {
@@ -787,6 +815,8 @@ angular.module('myApp')
 
     //Watch for changes in all data
     Data.registerObserver(watchChanges);
+
+    FB.AppEvents.logPageView("Semester view");
   }
 
   $scope.addCourse = function() {
