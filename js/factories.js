@@ -177,6 +177,11 @@ angular.module('myApp')
 	};
 
 	self.push = function (data){
+		//Check to make sure still logged in
+		if(!gapi.auth.getToken){
+			GAuth.login();
+			return;
+		}
 		console.log("lock acquired");
 
 		var xhr = new XMLHttpRequest();

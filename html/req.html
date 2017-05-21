@@ -39,7 +39,7 @@
 					</ons-col>
 				</ons-list-item>
 				<ons-list-item
-					ng-click="addClass()"
+					ng-click="pushClass()"
 					modifier="chevron"
 					tappable>
 					<i>Add course</i>
@@ -54,4 +54,13 @@
 			<ons-button style="width: 50%" ng-click="delete()" modifier="bRed">Delete</ons-button>
 		</p>
 	</div>
+
+	<ons-speed-dial position="bottom right" direction="up" ripple>
+		<ons-fab>
+			<ons-icon icon="md-plus"></ons-icon>
+		</ons-fab>
+		<ons-speed-dial-item>
+			<ons-icon icon="md-book" ng-click="addCourse()"></ons-icon>
+		</ons-speed-dial-item>
+	</ons-speed-dial>
 </ons-page>

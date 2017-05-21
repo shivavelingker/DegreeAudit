@@ -1,3 +1,7 @@
+var getRand = function() {
+  return Date.now();
+}
+
 var degrees;
 
 var getDegreePos = function(ID) {
@@ -64,7 +68,6 @@ angular.module('myApp')
   };
 
   $scope.init = function() {
-    console.log("register saver");
     Data.registerObserver(saveStatus);
   }
 
@@ -161,6 +164,7 @@ angular.module('myApp')
   var initialize = function() {
     if(nav.topPage.data.actionable != undefined)
       $scope.backButton = true;
+    Data.registerObserver($scope.refresh);
   }
 
   $scope.CourseDelegate = {
@@ -180,11 +184,6 @@ angular.module('myApp')
     }
   }
 
-  $scope.$watch('courses', function() {
-    $scope.CourseDelegate.refresh();
-    courses = $scope.courses;
-  }, true);
-
   $scope.action = function(chosen) {
     if(nav.topPage.data.actionable){
       nav.topPage.data.actionable(
@@ -201,6 +200,11 @@ angular.module('myApp')
 
   $scope.editCourse = function(chosen) {
     nav.pushPage('html/course.html', { data : { course: chosen } });
+  }
+
+  $scope.refresh = function() {
+    $scope.ordered = orderObjectBy(courses, 'abbr');
+    $scope.CourseDelegate.refresh();
   }
 })
 
@@ -229,7 +233,39 @@ angular.module('myApp')
       degrees[degPos].reqs[reqPos].satisfy.push(courseID);
   }
 
-  $scope.addClass = function() {
+  $scope.addCourse = function() {
+    var newCourse = {
+      sizeX: 1,
+      sizeY: 1,
+      row: 0,
+      col: semesters.length - 1,
+      ID: getRand(),
+      abbr: "",
+      name: "",
+      hours: 3
+    };
+
+    //Get basic information
+    ons.notification.prompt({message: "Course Abbreviation", cancelable: true})
+      .then(function(abbr) {
+        //Update course
+        newCourse.abbr = abbr;
+
+        //Insert new course at end
+        courses.push(newCourse);
+
+        //Set dirty and update global data
+        Data.dirty();
+
+        //Allow modification
+        nav.pushPage('html/course.html', {data: {course: newCourse}});
+      })
+      .catch(function(){
+        return true;
+      });
+  }
+
+  $scope.pushClass = function() {
     nav.pushPage("html/courses.html", {data: {actionable: action, degPos: $scope.degPos, reqPos: $scope.reqPos}});
   }
 
@@ -243,7 +279,7 @@ angular.module('myApp')
 
   $scope.delete = function() {
     //Splice req out of array
-    degrees[$scope.degPos].reqs.splice($scope.reqPos, 1);
+    $scope.degrees[$scope.degPos].reqs.splice($scope.reqPos, 1);
 
     //Save changes to file
     Data.save(updateData());
@@ -260,6 +296,12 @@ angular.module('myApp')
   $scope.rmClass = function(ID) {
     var pos = $scope.req.satisfy.indexOf(ID);
     $scope.req.satisfy.splice(pos, 1);
+
+    //Overwrite local var
+    $scope.degrees[$scope.degPos].reqs[$scope.reqPos] = $scope.req;
+
+    //Overwrite global var
+    degrees = $scope.degrees;
   }
 
   $scope.save = function() {
@@ -270,7 +312,7 @@ angular.module('myApp')
     }
 
     //Overwrite old var
-    degrees[$scope.degPos].reqs[$scope.reqPos] = $scope.req;
+    degrees = $scope.degrees;
 
     //Save changes to file
     Data.save(updateData());
@@ -279,6 +321,7 @@ angular.module('myApp')
   }
 
   var watchChanges = function() {
+    console.log("getting changes");
     $scope.degrees = degrees;
     $scope.req = $scope.degrees[$scope.degPos].reqs[$scope.reqPos];
   }
@@ -325,12 +368,44 @@ angular.module('myApp')
     Data.registerObserver(watchChanges);
   }
 
+  $scope.addCourse = function() {
+    var newCourse = {
+      sizeX: 1,
+      sizeY: 1,
+      row: 0,
+      col: semesters.length - 1,
+      ID: getRand(),
+      abbr: "",
+      name: "",
+      hours: 3
+    };
+
+    //Get basic information
+    ons.notification.prompt({message: "Course Abbreviation", cancelable: true})
+      .then(function(abbr) {
+        //Update course
+        newCourse.abbr = abbr;
+
+        //Insert new course at end
+        $scope.courses.push(newCourse);
+
+        //Set dirty and update global data
+        $scope.dirty();
+
+        //Allow modification
+        nav.pushPage('html/course.html', {data: {course: newCourse}});
+      })
+      .catch(function(){
+        return true;
+      });
+  }
+
   $scope.addDegree = function() {
     ons.notification.prompt({message: "Degree Name", cancelable: true})
        .then(function(name) {
           //Create degree object
           var degree = {
-            ID: Math.floor((Math.random() * 10000) + 1),
+            ID: getRand(),
             name: name,
             reqs: []
           };
@@ -348,7 +423,7 @@ angular.module('myApp')
 
   $scope.addReq = function() {
     var newReq = {
-      ID: Math.floor((Math.random() * 10000) + 1),
+      ID: getRand(),
       title: "",
       hours: 1,
       satisfy: []
@@ -365,9 +440,7 @@ angular.module('myApp')
           .then(function(hours){
             //Update course
             newReq.title = title;
-            newReq.hours = hours;
-
-            console.log($scope.chosen);
+            newReq.hours = (isNaN(parseInt(hours)) ? 1 : parseInt(hours));
 
             //Insert new course at end of requirement list
             $scope.chosen.reqs.push(newReq);
@@ -388,17 +461,20 @@ angular.module('myApp')
     $scope.class = getCourse(ID);
     //Check when course was taken
     var semester = $scope.class.col;
+    //Course has been completed
     if(semesters[semester].completed){
       $scope.status = 0;
-      $scope.color = "#00cd00";
+      $scope.color = "#75d3d1";
     }
+    //Course has not been scheduled
     else if(semester == semesters.length - 1){
       $scope.status = 2;
-      $scope.color = "#FFA500";
+      $scope.color = "#ff7950";
     }
+    //Course has been scheduled
     else{
       $scope.status = 1;
-      $scope.color = "gray";
+      $scope.color = "#a6a6a6";
     }
   }
 
@@ -428,7 +504,6 @@ angular.module('myApp')
 
   $scope.modifyDegree = function(degree) {
       $scope.chosen = degree;
-      console.log("chosen "+$scope.chosen);
       popover.show(event);
   }
 
@@ -499,6 +574,12 @@ angular.module('myApp')
     $scope.degrees[pos].reqs[rPos + 1] = current;
 
     $scope.dirty();
+  }
+
+  $scope.pl = function(hours){
+    if(hours > 1)
+      return "hrs";
+    return "hr";
   }
 
   $scope.recalculate = function() {
@@ -584,24 +665,32 @@ angular.module('myApp')
   }
 
   $scope.reqStatus = function(req) {
-    console.log("reqStatus");
     angular.forEach($scope.degrees, function(degree){
       angular.forEach(degree.reqs, function(req){
         var hours = parseInt(req.hours);
         var met = 0;
+        var satisfied = 0;
         angular.forEach(req.satisfy, function(courseID){
-          met += parseInt(getCourse(courseID).hours);
+          var course = getCourse(courseID);
+          met += parseInt(course.hours);
+
+          if(semesters[course.col].completed || course.col < semesters.length - 1)
+            satisfied += parseInt(course.hours);
         });
+        //If requirements haven't been fully set
         if(met < hours){
-          req.reqColor = "maroon";
-          req.warning = true;
+          req.reqColor = "#ff6c6c";
+          req.warning = 2;
+        }
+        //If satisfying courses haven't been scheduled
+        else if(satisfied < hours){
+          req.reqColor = "#ff7950";
+          req.warning = 1;
         }
         else{
-          req.reqColor = "black";
+          req.reqColor = "#333333";
           req.warning = false;
         }
-        console.log(req.title);
-        console.log(met, hours);
       })
     })
   }
@@ -706,7 +795,7 @@ angular.module('myApp')
       sizeY: 1,
       row: 0,
       col: $scope.semesters.length - 1,
-      ID: Math.floor((Math.random() * 10000) + 1),
+      ID: getRand(),
       abbr: "",
       name: "",
       hours: 3
@@ -719,7 +808,7 @@ angular.module('myApp')
         newCourse.abbr = abbr;
 
         //Insert new course at end
-        $scope.courses.splice($scope.courses.length, 0, newCourse);
+        $scope.courses.push(newCourse);
 
         //Set dirty and update global data
         $scope.dirty();
@@ -885,7 +974,6 @@ angular.module('myApp')
   }
 
   $scope.update = function() {
-    console.log("call update");
     //Update global variables
     semesters = $scope.semesters;
     courses = $scope.courses;
