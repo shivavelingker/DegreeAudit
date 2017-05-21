@@ -16,6 +16,7 @@
 
 	<!-- JS -->
 	<script src="lib/js/json_parse.js"></script>
+	<script src="js/url.js"></script>
 
 	<!-- Gridster -->
 	<link rel="stylesheet" href="lib/angular/angular-gridster.min.css"/>
@@ -136,20 +137,20 @@
 							Help
 						</ons-list-item>
 
+						<!-- Share Profile -->
+						<ons-list-item
+						 ng-click="load('html/share.html')" tappable>
+						 	<ons-icon icon="ion-share"></ons-icon>
+						 	&nbsp;&nbsp;&nbsp;&nbsp;
+							Share
+						</ons-list-item>
+
 						<!-- Settings Page -->
 						<ons-list-item
 						 ng-click="load('html/settings.html')" tappable>
 						 	<ons-icon icon="ion-settings"></ons-icon>
 						 	&nbsp;&nbsp;&nbsp;&nbsp;
 							Settings
-						</ons-list-item>
-
-						<!-- Logout Page -->
-						<ons-list-item
-						 ng-click="load('html/logout.html')" tappable>
-						 	<ons-icon icon="ion-android-exit"></ons-icon>
-						 	&nbsp;&nbsp;&nbsp;&nbsp;
-							Logout
 						</ons-list-item>
 					</ons-list>
 				</ons-page>

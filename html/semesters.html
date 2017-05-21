@@ -42,8 +42,6 @@
 		</div>
 	</ons-toolbar>
 
-	<br>
-
 	<ons-popover cancelable direction="left right" var="popover">
 		<div style="padding: 10px;">
 			<ons-list>
@@ -72,6 +70,8 @@
 			</ons-list>
 		</div>
 	</ons-popover>
+
+	<h3 style="text-align: center">Master Plan for {{ name }}</h3>
 
 	<ons-row style="padding: 10px;">
 		<ons-col ng-repeat="semester in semesters" ng-switch="semester.completed" id="semester">

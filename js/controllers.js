@@ -2,6 +2,8 @@ var getRand = function() {
   return Date.now();
 }
 
+var name = false;
+
 var degrees;
 
 var getDegreePos = function(ID) {
@@ -12,7 +14,7 @@ var getReqPos = function(ID, degreePos) {
   return degrees[degreePos].reqs.map(function(e) { return e.ID; }).indexOf(ID);
 }
 
-var semesters;
+var semesters = [];
 
 var courses;
 
@@ -22,12 +24,12 @@ var getCourse = function(ID) {
 
 var updateData = function() {
   //Convert relevant data to string
-  var dataD = angular.toJson(degrees);
-  var dataS = angular.toJson(semesters);
-  var dataC = angular.toJson(courses);
+  var dataD = angular.toJson(angular.copy(degrees));
+  var dataS = angular.toJson(angular.copy(semesters));
+  var dataC = angular.toJson(angular.copy(courses));
 
   //Parse data together
-  return dataD + "\n" + dataS + "\n" + dataC;
+  return dataD + "\n" + dataS + "\n" + dataC + "\n" + name;
 }
 
 var orderObjectBy = 
@@ -79,7 +81,6 @@ angular.module('myApp')
   var saveStatus = function() {
     $scope.saved = Data.saved;
   }
-
 }])
 
 .controller("LoginCtrl", function($scope, $timeout, FBAuth, GAuth, Data) {
@@ -115,30 +116,32 @@ angular.module('myApp')
   }
 
   var parseData = function() {
-    Data.deregister(parseData);
+    if (angular.equals(semesters, [])){
+      var str = (Data.fileData ? Data.fileData.split("\n") : [null, null, null]);
 
-    var str = (Data.fileData ? Data.fileData.split("\n") : [null, null, null]);
+      name = (str[3] && str[3] != undefined ? str[3] : FBAuth.name);
 
-    degrees = (str[0] && str[0] != undefined ? json_parse(str[0]) : []);
+      degrees = (str[0] && str[0] != undefined ? json_parse(str[0]) : []);
 
-    semesters = (str[1] && str[1] != undefined ? json_parse(str[1]) : []);
+      semesters = (str[1] && str[1] != undefined ? json_parse(str[1]) : []);
 
-    courses = (str[2] && str[2] != undefined ? json_parse(str[2]) : []);
+      courses = (str[2] && str[2] != undefined ? json_parse(str[2]) : []);
 
-    $scope.DPulled = true;
+      $scope.DPulled = true;
+    }
   }
 })
 
-.controller("CourseCtrl", ['$scope', '$timeout', 'Data', function($scope, $timeout, Data){
+.controller("CourseCtrl", ['$scope', '$timeout', 'FBAuth', 'Data', function($scope, $timeout, FBAuth, Data){
   $scope.init = function(){
     $timeout($scope.initialize, 50);
   }
 
   $scope.initialize = function() {
-    $scope.old = nav.topPage.data.course;
-    $scope.course = angular.copy(nav.topPage.data.course);
+    $scope.old = getCourse(nav.topPage.data.course);
+    $scope.course = angular.copy($scope.old);
 
-    FB.AppEvents.logPageView("Editing course");
+    FBAuth.log("Editing course");
   }
 
 
@@ -159,11 +162,14 @@ angular.module('myApp')
   }
 
   $scope.save = function() {
+    console.log("enter save()");
     //Check if course was modified
     if(angular.equals($scope.old, $scope.course))
       return;
 
-    //Overwrite old course if applicable
+    console.log("overwriting");
+
+    //Overwrite old course
     var pos = courses.indexOf($scope.old);
     courses[pos] = $scope.course;
 
@@ -175,7 +181,7 @@ angular.module('myApp')
   }
 }])
 
-.controller("CoursesCtrl", function($scope, $timeout, Data) {
+.controller("CoursesCtrl", function($scope, $timeout, FBAuth, Data) {
   $scope.courses = courses;
   $scope.ordered = orderObjectBy($scope.courses, 'abbr');
   $scope.backButton = false;
@@ -189,11 +195,12 @@ angular.module('myApp')
       $scope.backButton = true;
     Data.registerObserver($scope.refresh);
 
-    FB.AppEvents.logPageView("Courses view");
+    FBAuth.log("Courses view");
   }
 
   $scope.CourseDelegate = {
     configureItemScope: function(index, itemScope) {
+      itemScope.id = $scope.ordered[index].ID;
       itemScope.course = $scope.ordered[index];
       itemScope.abbr = $scope.ordered[index].abbr;
       itemScope.name = $scope.ordered[index].name;
@@ -209,18 +216,18 @@ angular.module('myApp')
     }
   }
 
-  $scope.action = function(chosen) {
+  $scope.action = function(chosenID) {
     if(nav.topPage.data.actionable){
       nav.topPage.data.actionable(
                   nav.topPage.data.degPos,
                   nav.topPage.data.reqPos,
-                  chosen.ID);
+                  chosenID);
       Data.save(updateData());
       nav.popPage();
     }
 
     else
-      $scope.editCourse(chosen);
+      $scope.editCourse(chosenID);
   }
 
   $scope.editCourse = function(chosen) {
@@ -233,7 +240,7 @@ angular.module('myApp')
   }
 })
 
-.controller("ReqCtrl", ['$scope', '$timeout', 'Data', function($scope, $timeout, Data){
+.controller("ReqCtrl", ['$scope', '$timeout', 'FBAuth', 'Data', function($scope, $timeout, FBAuth, Data){
   $scope.degrees = null;
 
   $scope.init = function() {
@@ -250,7 +257,7 @@ angular.module('myApp')
     $scope.old = angular.copy($scope.req);
 
     Data.registerObserver(watchChanges);
-    FB.AppEvents.logPageView("Editing requirement");
+    FBAuth.log("Editing requirement");
   }
 
   var action = function(degPos, reqPos, courseID) {
@@ -284,7 +291,7 @@ angular.module('myApp')
         Data.dirty();
 
         //Allow modification
-        nav.pushPage('html/course.html', {data: {course: newCourse}});
+        nav.pushPage('html/course.html', {data: {course: newCourse.ID}});
       })
       .catch(function(){
         return true;
@@ -353,7 +360,7 @@ angular.module('myApp')
   }
 }])
 
-.controller('DegreeCtrl', ['$scope', '$timeout', 'Data', function($scope, $timeout, Data) {
+.controller('DegreeCtrl', ['$scope', '$timeout', 'FBAuth', 'Data', function($scope, $timeout, FBAuth, Data) {
   $scope.chosen = null;
   $scope.degrees = null;
   $scope.reqs = [];
@@ -361,17 +368,14 @@ angular.module('myApp')
   $scope.saved = Data.saved;
   $scope.class = null;
   $scope.status = 0;
+  $scope.name = name;
 
   $scope.init = function() {
-    if(Data.fileData)
-      initialize();
-    else
-      Data.registerObserver(initialize);
+    initialize();
   }
 
   var initialize = function() {
     console.log("degree init");
-    Data.deregister(initialize);
 
     $scope.degrees = degrees;
     $scope.courses = courses;
@@ -393,7 +397,7 @@ angular.module('myApp')
     //Watch for changes in all data
     Data.registerObserver(watchChanges);
 
-    FB.AppEvents.logPageView("Degree view");
+    FBAuth.log("Degree view");
   }
 
   $scope.addCourse = function() {
@@ -421,7 +425,7 @@ angular.module('myApp')
         $scope.dirty();
 
         //Allow modification
-        nav.pushPage('html/course.html', {data: {course: newCourse}});
+        nav.pushPage('html/course.html', {data: {course: newCourse.ID}});
       })
       .catch(function(){
         return true;
@@ -487,8 +491,10 @@ angular.module('myApp')
 
   $scope.course = function(ID) {
     $scope.class = getCourse(ID);
+    
     //Check when course was taken
     var semester = $scope.class.col;
+
     //Course has been completed
     if(semesters[semester].completed){
       $scope.status = 0;
@@ -497,7 +503,7 @@ angular.module('myApp')
     //Course has not been scheduled
     else if(semester == semesters.length - 1){
       $scope.status = 2;
-      $scope.color = "#ff7950";
+      $scope.color = "#545454";
     }
     //Course has been scheduled
     else{
@@ -715,9 +721,10 @@ angular.module('myApp')
           req.reqColor = "#ff7950";
           req.warning = 1;
         }
+        //Everything met
         else{
           req.reqColor = "#333333";
-          req.warning = false;
+          req.warning = 0;
         }
       })
     })
@@ -727,6 +734,7 @@ angular.module('myApp')
     $scope.recalculate();
 
     degrees = $scope.degrees;
+    courses = $scope.courses;
 
     $timeout(50);
   }
@@ -738,12 +746,12 @@ angular.module('myApp')
   }
 }])
 
-// Controller for package form
-.controller('SemesterCtrl', ['$scope', '$timeout', 'Data', function($scope, $timeout, Data) {
+.controller('SemesterCtrl', ['$scope', '$timeout', 'FBAuth', 'Data', function($scope, $timeout, FBAuth, Data) {
   $scope.chosen = null;
   $scope.semesters = null;
   $scope.courses = null;
   $scope.saved = Data.saved;
+  $scope.name = name;
 
   $scope.gridsterOpts = {
     columns: 1, // the width of the grid, in columns
@@ -790,8 +798,8 @@ angular.module('myApp')
     console.log("semester init");
     Data.deregister(initialize);
 
-    $scope.semesters = semesters;
-    $scope.courses = courses;
+    $scope.semesters = angular.copy(semesters);
+    $scope.courses = angular.copy(courses);
 
     //Set number of columns
     $scope.gridsterOpts.columns = ($scope.semesters.length ? $scope.semesters.length : 1);
@@ -816,7 +824,7 @@ angular.module('myApp')
     //Watch for changes in all data
     Data.registerObserver(watchChanges);
 
-    FB.AppEvents.logPageView("Semester view");
+    FBAuth.log("Semester view");
   }
 
   $scope.addCourse = function() {
@@ -844,7 +852,7 @@ angular.module('myApp')
         $scope.dirty();
 
         //Allow modification
-        nav.pushPage('html/course.html', {data: {course: newCourse}});
+        nav.pushPage('html/course.html', {data: {course: newCourse.ID}});
       })
       .catch(function(){
         return true;
@@ -942,8 +950,6 @@ angular.module('myApp')
           course.col++;
       });
 
-      //Reposition popover?
-
       $scope.dirty();
     }
   }
@@ -967,8 +973,6 @@ angular.module('myApp')
         else if(course.col == pos + 1)
           course.col--;
       })
-
-      //Reposition popover?
 
       $scope.dirty();
     }
@@ -1005,8 +1009,8 @@ angular.module('myApp')
 
   $scope.update = function() {
     //Update global variables
-    semesters = $scope.semesters;
-    courses = $scope.courses;
+    semesters = angular.copy($scope.semesters);
+    courses = angular.copy($scope.courses);
 
     //Update display
     $timeout(50);
@@ -1014,13 +1018,47 @@ angular.module('myApp')
 
   var watchChanges = function() {
     $scope.saved = Data.saved;
+    $scope.courses = courses;
+    $scope.semesters = semesters;
   }
 }])
 
-.controller("SettingsCtrl", ['$scope', 'Data', function($scope, Data) {
-  $scope.delete = function(){
+.controller('ShareCtrl', ['$scope', '$timeout', 'FBAuth', 'Data', function($scope, $timeout, FBAuth, Data) {
+  $scope.shareId = Data.getId();
+
+  $scope.init = function() {
+    Data.registerObserver(watchChanges);
+    Data.listPermissions();
+
+    FBAuth.log("Share view");
+  }
+
+  $scope.makePrivate = function() {
+    Data.makePrivate();
+  }
+
+  $scope.makePublic = function() {
+    Data.makePublic();
+  }
+
+  var watchChanges = function() {
+    $scope.public = Data.public;
+  }
+}])
+
+.controller("SettingsCtrl", ['$scope', 'FBAuth', 'GAuth', 'Data', function($scope, FBAuth, GAuth, Data) {
+  $scope.init = function() {
+    FBAuth.log("Settings view");
+  }
+
+  $scope.delete = function() {
     angular.element(document.querySelector('#delButton')).attr("disabled","true");
     Data.destroy();
+  }
+
+  $scope.logout = function() {
+    FBAuth.logout();
+    //GAuth.logout();
   }
 }])
 

@@ -1,4 +1,4 @@
-<ons-page ng-controller="SettingsCtrl">
+<ons-page ng-controller="SettingsCtrl" ng-init="init()">
 	<ons-toolbar>
 		<div class="left">
 			<ons-toolbar-button ng-click="menu.left.open()">
@@ -13,14 +13,30 @@
 	<div class="centered">
 		<br>
 
-		<ons-button modifier="bOrange" id="delButton" ng-click="delete()">
-			Delete Profile
-		</ons-button>
+		<p>
+			<ons-button modifier="bRed" id="delButton" ng-click="delete()">
+				Delete Profile
+			</ons-button>
+
+			<br>
+
+			<i class="small">
+				You will be redirected to the homepage for a new profile after destruction
+			</i>
+		</p>
 
 		<br>
 
-		<i class="small">
-			You will be redirected to the homepage for a new profile after destruction
-		</i>
+		<p>
+			<ons-button modifier="bOrange" ng-click="loguout()">
+				Logout
+			</ons-button>
+
+			<br>
+
+			<i class="small">
+				You will be redirected to the homepage after logging out
+			</i>
+		</p>
 	</div>
 </ons-page>
