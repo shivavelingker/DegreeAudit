@@ -7,7 +7,7 @@
             </ons-toolbar-button>
 		</div>
 		<div class="center">
-			Master Plan
+			Master Plan for {{ name }}
 		</div>
 		<div class="right" ng-switch="saved">
 			<ons-button
@@ -42,39 +42,11 @@
 		</div>
 	</ons-toolbar>
 
-	<ons-popover cancelable direction="left right" var="popover">
-		<div style="padding: 10px;">
-			<ons-list>
-				<ons-list-item ng-click="rename()" tappable>
-					Rename
-				</ons-list-item>
-				<ons-list-item ng-click="flipStatus()" tappable>
-					<div ng-switch="chosen.completed">
-						<div ng-switch-when="0">
-							Mark complete
-						</div>
-						<div ng-switch-when="1">
-							Mark incomplete
-						</div>
-					</div>
-				</ons-list-item>
-				<ons-list-item ng-click="moveLeft()" tappable>
-					Move left
-				</ons-list-item>
-				<ons-list-item ng-click="moveRight()" tappable>
-					Move right
-				</ons-list-item>
-				<ons-list-item ng-click="delete()" tappable>
-					Delete
-				</ons-list-item>
-			</ons-list>
-		</div>
-	</ons-popover>
-
-	<h3 style="text-align: center">Master Plan for {{ name }}</h3>
-
+	<br>
+	
+	<div id="expandable">
 	<ons-row style="padding: 10px;">
-		<ons-col ng-repeat="semester in semesters" ng-switch="semester.completed" id="semester">
+		<ons-col ng-repeat="semester in semesters" ng-switch="semester.completed" id="{{ semester.ID }}">
 			<div ng-switch-when="1">
 				<ons-button modifier="light" ng-click="modifySemester(semester)">
 					{{ semester.name }}
@@ -88,8 +60,7 @@
 			</div>
 		</ons-col>
 	</ons-row>
-
-	<ons-row style="padding: 10px">
+	<ons-row style="padding: 10px" class="expandableRow">
 		<ons-col class="small" ng-repeat="semester in semesters">
 			<i><u>Total Hours: {{ semester.hours }}</u></i>
 		</ons-col>
@@ -100,11 +71,12 @@
 			<li
 				gridster-item="course"
 				ng-repeat="course in courses"
-				style="padding: 5px"
+				style="padding-top: 5px"
 				class="small">
-					{{ course.abbr }} - {{ course.name }}
+					{{ course.abbr }} <br> {{ course.name }}
 			</li>
 		</ul>
+	</div>
 	</div>
 
 	<ons-speed-dial position="bottom right" direction="up" ripple>

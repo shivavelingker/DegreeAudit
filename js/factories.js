@@ -1,5 +1,4 @@
-var site = 'https://shivavelingker.github.io/DegreeAudit'
-
+var site = 'https://shivavelingker.github.io/DegreeAudit';
 
 angular.module('myApp')
 
@@ -141,6 +140,11 @@ angular.module('myApp')
 		return loggedIn;
 	}
 
+	self.logout = function (){
+		gapi.auth.signOut();
+		window.location = site;
+	}
+
 	self.login();
 })
 
@@ -249,21 +253,10 @@ angular.module('myApp')
 			return false;
 		//If session has ended, redo
 		else if(gapi.auth.getToken() == null){
-			console.log("Lost connection to services");
-			//Reset logged in vars
-			FBAuth.loggedIn = false;
-			GAuth.loggedIn = false;
-
-			//Call login functions
-			FBAuth.initialize();
-			GAuth.login();
-
-			//Force everything else to wait
-			while(!FBAuth.loginStatus() || !GAuth.loginStatus()){
-				$timeout(function(){
-					console.log("Attempting to reconnect to services");
-				}, 500);
-			}
+			ons.notification.alert({message: "Lost connection to services. Page will be reloaded"})
+			.then(function(){
+				window.location = site;
+			});
 		}
 		return true;
 	}

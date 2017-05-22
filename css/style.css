@@ -22,6 +22,10 @@ ons-splitter-side[side="left"] {
   border-right: 1px solid rgba(0, 0, 0, 0.2);
 }
 
+.toolbar{
+  margin-bottom: 10px;
+}
+
 .highlight {
   background-color: lightyellow;
   color: rgba(255, 0, 0, 0.7);
@@ -95,6 +99,10 @@ ons-splitter-side[side="left"] {
 
 .centered{
   text-align: center;
+}
+
+#expandable{
+  overflow-x: auto;
 }
 
 

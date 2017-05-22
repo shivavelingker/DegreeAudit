@@ -6,7 +6,7 @@
             </ons-toolbar-button>
 		</div>
 		<div class="center">
-			Degree Plans
+			Degree Plans for {{ name }}
 		</div>
 		<div class="right" ng-switch="saved">
 			<ons-button
@@ -41,39 +41,18 @@
 		</div>
 	</ons-toolbar>
 
-	<ons-popover cancelable direction="left right" var="popover">
-		<div style="padding: 10px;">
-			<ons-list>
-				<ons-list-item ng-click="addReq()" tappable>
-					Add requirement
-				</ons-list-item>
-				<ons-list-item ng-click="rename()" tappable>
-					Rename
-				</ons-list-item>
-				<ons-list-item ng-click="moveLeft()" tappable>
-					Move left
-				</ons-list-item>
-				<ons-list-item ng-click="moveRight()" tappable>
-					Move right
-				</ons-list-item>
-				<ons-list-item ng-click="delete()" tappable>
-					Delete
-				</ons-list-item>
-			</ons-list>
-		</div>
-	</ons-popover>
+	<br>
 
-	<h3 style="text-align: center">Degree Plans for {{ name }}</h3>
-
-	<ons-row style="padding: 10px;">
+	<div id="expandable">
+	<ons-row style="padding: 10px; text-align: center;">
 		<ons-col ng-repeat="degree in degrees" style="padding-right: 5px;">
-			<ons-row style="margin-bottom: 10px; text-align: center;">
+			<ons-row style="margin-bottom: 10px;">
 				<ons-button modifier="light" ng-click="modifyDegree(degree)">
 					{{ degree.name }}
 				</ons-button>
 			</ons-row>
 			<ons-row style="margin-bottom: 10px;">
-				Completed: {{ degree.value }}% | 
+				Completed: {{ degree.value }}% |
 				Planned: {{ degree.planned }}% |
 				Total: {{ degree.secondary }}%
 				<br>
@@ -103,11 +82,11 @@
 							<ons-button modifier="quiet" ng-click="moveUp(req.ID, degree.ID)">
 								<ons-icon icon="ion-ios-arrow-thin-up">
 								</ons-icon>
-							</ons-button>&nbsp;&nbsp;&nbsp;
+							</ons-button>
 
 							<ons-button modifier="quiet" ng-click="moveDown(req.ID, degree.ID)">
 								<ons-icon icon="ion-ios-arrow-thin-down"></ons-icon>
-							</ons-button>&nbsp;&nbsp;&nbsp;
+							</ons-button>
 
 							<ons-button modifier="quiet" ng-click="editReq(req.ID, degree.ID)">
 								<ons-icon icon="ion-ios-compose-outline"></ons-icon>
@@ -142,6 +121,7 @@
 			</ons-row>
 		</ons-col>
 	</ons-row>
+	</div>
 
 	<ons-speed-dial position="bottom right" direction="up" ripple>
 		<ons-fab>

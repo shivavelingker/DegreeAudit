@@ -64,8 +64,7 @@ angular.module('myApp')
   $scope.saved = Data.saved;
 
   $scope.load = function(page) {
-    console.log("hu");
-    content.load(page).then(function() {
+    menu.content.load(page).then(function() {
         menu.left.close();
       });
   };
@@ -134,10 +133,6 @@ angular.module('myApp')
 
 .controller("CourseCtrl", ['$scope', '$timeout', 'FBAuth', 'Data', function($scope, $timeout, FBAuth, Data){
   $scope.init = function(){
-    $timeout($scope.initialize, 50);
-  }
-
-  $scope.initialize = function() {
     $scope.old = getCourse(nav.topPage.data.course);
     $scope.course = angular.copy($scope.old);
 
@@ -164,8 +159,10 @@ angular.module('myApp')
   $scope.save = function() {
     console.log("enter save()");
     //Check if course was modified
-    if(angular.equals($scope.old, $scope.course))
+    if(angular.equals($scope.old, $scope.course)){
+      $scope.close();
       return;
+    }
 
     console.log("overwriting");
 
@@ -187,10 +184,6 @@ angular.module('myApp')
   $scope.backButton = false;
 
   $scope.init = function() {
-    $timeout(initialize, 500);
-  }
-
-  var initialize = function() {
     if(nav.topPage.data.actionable != undefined)
       $scope.backButton = true;
     Data.registerObserver($scope.refresh);
@@ -217,6 +210,7 @@ angular.module('myApp')
   }
 
   $scope.action = function(chosenID) {
+    //If return course back to reqCtrl
     if(nav.topPage.data.actionable){
       nav.topPage.data.actionable(
                   nav.topPage.data.degPos,
@@ -225,7 +219,7 @@ angular.module('myApp')
       Data.save(updateData());
       nav.popPage();
     }
-
+    //If editing course directly
     else
       $scope.editCourse(chosenID);
   }
@@ -244,10 +238,6 @@ angular.module('myApp')
   $scope.degrees = null;
 
   $scope.init = function() {
-    $timeout(initialize, 50);
-  }
-
-  var initialize = function() {
     $scope.degrees = degrees;
 
     $scope.reqPos = nav.topPage.data.reqPos;
@@ -461,9 +451,6 @@ angular.module('myApp')
       satisfy: []
     };
 
-    //Close popover
-    popover.hide();
-
     //Get title of requirement
     ons.notification.prompt({message: "Requirement", cancelable: true})
       .then(function(title) {
@@ -525,9 +512,6 @@ angular.module('myApp')
     var pos = getDegreePos($scope.chosen.ID);
     $scope.degrees.splice(pos, 1);
 
-    //Close popover
-    popover.hide();
-
     $scope.dirty();
   }
 
@@ -538,7 +522,33 @@ angular.module('myApp')
 
   $scope.modifyDegree = function(degree) {
       $scope.chosen = degree;
-      popover.show(event);
+
+      ons.openActionSheet({
+        title: 'Semester Options',
+        cancelable: true,
+        buttons: [
+          'Add requirement',
+          'Rename',
+          'Move left',
+          'Move right',
+          {
+            label: 'Delete',
+            modifier: 'destructive'
+          },
+          'Close'
+        ]
+      }).then(function(index){
+        if(index == 0)
+          $scope.addReq();
+        else if(index == 1)
+          $scope.rename();
+        else if(index == 2)
+          $scope.moveLeft();
+        else if(index == 3)
+          $scope.moveRight();
+        else if(index == 4)
+          $scope.delete();
+      })
   }
 
   $scope.moveLeft = function() {
@@ -617,6 +627,9 @@ angular.module('myApp')
   }
 
   $scope.recalculate = function() {
+    //Resize if necessary
+    angular.element(document.querySelector('#expandable')).attr("style","width:"+40*$scope.degrees.length+"%");
+
     //Determine coloration
     $scope.reqStatus();
 
@@ -693,9 +706,6 @@ angular.module('myApp')
       .catch(function(){
         return true;
       });
-
-    //Close popover
-    popover.hide();
   }
 
   $scope.reqStatus = function(req) {
@@ -781,9 +791,6 @@ angular.module('myApp')
     },
     draggable: {
        enabled: true, // whether dragging items is supported
-       //start: function(event, $element, widget) {}, // optional callback fired when drag is started,
-       //drag: function(event, $element, widget) {}, // optional callback fired when item is moved,
-       //stop: function(event, $element, widget) { $scope.update(); } // optional callback fired when item is finished dragging
     }
   };
 
@@ -811,9 +818,6 @@ angular.module('myApp')
     $timeout(50);
 
     $scope.$watch('courses', function(n, o){
-      //Update semester hours
-      $scope.recalculate();
-
       //Check for dirtiness
       if(n != o)
         $scope.dirty();
@@ -906,9 +910,6 @@ angular.module('myApp')
     //Update Gridster
     $scope.gridsterOpts.columns = $scope.semesters.length;
 
-    //Close popover
-    popover.hide();
-
     $scope.dirty();
   }
 
@@ -926,7 +927,35 @@ angular.module('myApp')
     //Create popup to allow semester modification
     if(semester.name != "Unsorted") {
         $scope.chosen = semester;
-        popover.show(event);
+
+        var string = ($scope.chosen.completed ? "Mark incomplete" : "Mark complete");
+        
+        ons.openActionSheet({
+          title: 'Semester Options',
+          cancelable: true,
+          buttons: [
+            'Rename',
+             string,
+            'Move left',
+            'Move right',
+            {
+              label: 'Delete',
+              modifier: 'destructive'
+            },
+            'Close'
+          ]
+        }).then(function(index){
+          if(index == 0)
+            $scope.rename();
+          else if(index == 1)
+            $scope.flipStatus();
+          else if(index == 2)
+            $scope.moveLeft();
+          else if(index == 3)
+            $scope.moveRight();
+          else if(index == 4)
+            $scope.delete();
+        })
     }
   }
 
@@ -979,6 +1008,9 @@ angular.module('myApp')
   }
 
   $scope.recalculate = function() {
+    //Recalculate widths
+    angular.element(document.querySelector('#expandable')).attr("style","width:"+20*$scope.semesters.length+"%");
+
     //Reset hours for each semester
     angular.forEach($scope.semesters, function(semester) {
       semester.hours = 0;
@@ -1002,15 +1034,18 @@ angular.module('myApp')
       .catch(function(){
         return true;
       });
-
-    //Close popover
-    popover.hide();
   }
 
   $scope.update = function() {
     //Update global variables
     semesters = angular.copy($scope.semesters);
     courses = angular.copy($scope.courses);
+
+    //Force set number of columns
+    $scope.gridsterOpts.columns = ($scope.semesters.length ? $scope.semesters.length : 1);
+
+    //Update display
+    $scope.recalculate();
 
     //Update display
     $timeout(50);
@@ -1020,6 +1055,12 @@ angular.module('myApp')
     $scope.saved = Data.saved;
     $scope.courses = courses;
     $scope.semesters = semesters;
+
+    //Update display
+    $scope.recalculate();
+
+    //Update display
+    $timeout(50);
   }
 }])
 
@@ -1058,7 +1099,7 @@ angular.module('myApp')
 
   $scope.logout = function() {
     FBAuth.logout();
-    //GAuth.logout();
+    GAuth.logout();
   }
 }])
 
