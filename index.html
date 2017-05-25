@@ -26,7 +26,7 @@
 
 	<!-- JS -->
 	<script src="lib/js/json_parse.js"></script>
-	<script src="js/url.js"></script>
+	<script src="lib/js/url.js"></script>
 
 	<!-- Gridster -->
 	<link rel="stylesheet" href="lib/angular/angular-gridster.min.css"/>
@@ -53,6 +53,16 @@
 
 	<ons-navigator var="nav" page="html/menu.html">
 	</ons-navigator>
+
+	<ons-template id="details.html">
+		<ons-popover
+		 direction="up"
+		 cancelable>
+		 	<div style="padding: 10px; text-align: center;">
+				{{ message }}
+			</div>
+		</ons-popover>
+	</ons-template>
 
 </body>
 </html>

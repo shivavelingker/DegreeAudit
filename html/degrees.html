@@ -54,6 +54,16 @@
 					{{ degree.name }}
 				</ons-button>
 			</ons-row>
+			<ons-row class="small" style="margin-bottom: 10px;">
+				<div ng-if="degree.notes"
+				 style="height: 25px; width: 100%;">
+					<center><i>{{ degree.notes }}</i></center>
+				</div>
+				<div ng-if="!degree.notes"
+				 style="height: 25px;">
+					<br>
+				</div>
+			</ons-row>
 			<ons-row style="margin-bottom: 10px;">
 				Completed: {{ degree.value }}% |
 				Planned: {{ degree.planned }}% |
@@ -118,6 +128,17 @@
 						</div>
 						<div class="center" style="color: {{ color }};">
 							{{ class.abbr }} - {{ class.name }}
+						</div>
+						<div class="right">
+							<div ng-if="class.notes">
+								<ons-button
+								 modifier="quiet"
+								 ng-click="showDetails(satisfy)"
+								 vertical-align="top">
+									<ons-icon icon="ion-ios-information-outline">
+									</ons-icon>
+								</ons-button>
+							</div>
 						</div>
 					</ons-list-item>
 				</ons-list>

@@ -367,6 +367,10 @@ angular.module('myApp')
     $scope.close();
   }
 
+  $scope.editCourse = function(ID) {
+    nav.pushPage('html/course.html', { data : { course: ID } });
+  }
+
   $scope.listClasses = function() {
     //Save changes already made
     if(!angular.equals($scope.old, $scope.req)){
@@ -473,6 +477,7 @@ angular.module('myApp')
           var degree = {
             ID: getRand(),
             name: name,
+            notes: "",
             reqs: []
           };
 
@@ -518,6 +523,21 @@ angular.module('myApp')
           })
       })
       .catch(function() {
+        return true;
+      });
+  }
+
+  $scope.changeDescription = function() {
+    //Allow degree to be renamed
+    ons.notification.prompt({message: "Changing description for: " + $scope.chosen.name, cancelable: 'true'})
+      .then(function(desc) {
+          //Bad input check
+          if(desc == null)
+            return;
+          $scope.chosen.notes = desc;
+          $scope.dirty();
+      })
+      .catch(function(){
         return true;
       });
   }
@@ -574,6 +594,7 @@ angular.module('myApp')
         cancelable: true,
         buttons: [
           'Add requirement',
+          'Change description',
           'Rename',
           'Move left',
           'Move right',
@@ -587,12 +608,14 @@ angular.module('myApp')
         if(index == 0)
           $scope.addReq();
         else if(index == 1)
-          $scope.rename();
+          $scope.changeDescription();
         else if(index == 2)
-          $scope.moveLeft();
+          $scope.rename();
         else if(index == 3)
-          $scope.moveRight();
+          $scope.moveLeft();
         else if(index == 4)
+          $scope.moveRight();
+        else if(index == 5)
           $scope.delete();
       })
   }
@@ -793,6 +816,14 @@ angular.module('myApp')
         }
       })
     })
+  }
+
+  $scope.showDetails = function(ID){
+    $scope.message = getCourse(ID).notes;
+    ons.createPopover('details.html', { parentScope: $scope})
+    .then(function(popover){
+      popover.show(event);
+    });
   }
 
   $scope.update = function() {

@@ -20,7 +20,8 @@
 		<p>
 			<ons-list modifier="inset" style="width: 75%; margin-left: auto; margin-right: auto;">
 				<ons-list-header>Satisfying courses</ons-list-header>
-				<ons-list-item ng-repeat="satisfy in req.satisfy">
+				<ons-list-item ng-repeat="satisfy in req.satisfy"
+				 ng-click="editCourse(satisfy)" tappable>
 					{{ course(satisfy) }}
 					<ons-col width="125px">
 						{{ chosen.abbr }}
