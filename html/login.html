@@ -11,49 +11,25 @@
 	</ons-toolbar>
 
 	<div class="centered">
-		<br>
-		<p ng-if="!FLoggedIn">
-			Connecting to Facebook...
-				<br><br>
-				<ons-progress-circular indeterminate>
-				</ons-progress-circular>
-		</p>
-		<p ng-if="FLoggedIn">
-			Facebook login successful!
-				<br><br>
-				<ons-icon icon="ion-checkmark" size="40px">
-				</ons-icon>
-		</p>
-
-		<br>
-
-		<p ng-if="!GLoggedIn">
-			Getting data from Google...
-				<br><br>
-				<ons-progress-circular indeterminate>
-				</ons-progress-circular>
+		<p ng-if="signIn">
+			<ons-button ng-click="manualLogin()" modifier="quiet">
+				<img src="html/images/google.png"/>
+			</ons-button>
 		</p>
 		<p ng-if="GLoggedIn">
-			Google login successful!
-				<br><br>
-				<ons-icon icon="ion-checkmark" size="40px">
-				</ons-icon>
+			<br><br><br>
+			<ons-icon icon="ion-checkmark" size="40px"></ons-icon>
 		</p>
 
 		<br>
 
-		<p ng-if="!DPulled">
-			Preparing app...
-				<br><br>
-				<ons-progress-circular indeterminate>
-				</ons-progress-circular>
-		</p>
-		<p ng-if="DPulled">
-			App is ready to use!
-				<br><br>
-				<ons-icon icon="ion-checkmark" size="40px">
-				</ons-icon>
-		</p>
+		<ons-toast
+			var="loginToast"
+			animation="fall">
+			<center>
+				Click on the top-left menu button to get started!
+			</center>
+		</ons-toast>
 
 	</div>
 </ons-page>

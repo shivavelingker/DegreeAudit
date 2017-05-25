@@ -88,9 +88,17 @@ ons-splitter-side[side="left"] {
   margin-top: 10px;
 }
 
+.button--bGreen{
+  background-color: #4BB74C;
+}
+
 .button--bRed{
   background-color: red;
   margin-top: 10px;
+}
+
+.button--bTeal{
+  background-color: #008080;
 }
 
 .small{
@@ -102,7 +110,7 @@ ons-splitter-side[side="left"] {
 }
 
 #expandable{
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 

@@ -1,75 +1,21 @@
-var site = 'https://shivavelingker.github.io/DegreeAudit';
+var site = 'https://shivavelingker.github.io/DegreeAudit/';
+
+var siteRedirect = function (){
+	window.location = site;
+}
 
 angular.module('myApp')
 
-//Service to login to Facebook
-.service('FBAuth', function ($timeout){
-	var self = this;
-	self.name = "User";
-	var loggedIn = false;
-	var observers = [];
-
-	//NOTIFICATION SYSTEM
-	var notifyObservers = function(){
-		angular.forEach(observers, function(observer){
-			$timeout();
-			observer();
-		});
-		$timeout();
-	};
-
-	self.registerObserver = function(observer){
-		if(observers.indexOf(observer) < 0)
-			observers.push(observer);
-	};
-
-	self.initialize = function (){
-		//Wait until SDK has been loaded
-		if(typeof FB == 'undefined'){
-			$timeout(self.init);
-			return;
-		}
-
-		FB.getLoginStatus(function (response){
-		    self.process(response);
-		}, true);
-	}
-
-	self.log = function (string){
-		FB.AppEvents.logPageView(string);
-	}
-
-	self.loginStatus = function (){
-		return self.loggedIn;
-	}
-
-	self.logout = function (){
-		FB.logout();
-	}
-
-	self.process = function(response) {
-		if(response.status == "connected"){
-			self.loggedIn = true;
-			FB.api('/me', function(response){
-				self.name = response.name;
-			})
-			notifyObservers();
-		}
-		else{
-			FB.login(function(response){
-				self.process(response);
-			});			
-		}
-	}
-
-	self.initialize();
-})
-
 //Service to login to Google
-.service('GAuth', function ($timeout, FBAuth){
+.service('GAuth', function ($timeout){
 	var self = this;
-	var loggedIn = false;
 	var observers = [];
+
+	var GoogleAuth = null;
+	var GoogleUser = null;
+	self.name = null;
+	self.email = null;
+	self.ID = null;
 	
 	var API_KEY = 'AIzaSyDJMJygZqA7P_Er3RTg0sWlfSLfr50mh7M';
 	var CLIENT_ID = '609480981833-puk5ka2mljdde2tteoiqfth0j6qe31de.apps.googleusercontent.com';
@@ -89,66 +35,82 @@ angular.module('myApp')
 			observers.push(observer);
 	};
 
-	//SERVICE
+	//LOGIN FLOW
+	//Get Google library
+	self.init = function (){
+		//Get Google library
+		gapi.load('auth2', self.initialize);
+	}
+
+	//Initialize services
+	self.initialize = function (){
+		gapi.auth2.init({
+			client_id: CLIENT_ID,
+			scope: SCOPES.join(' '),
+			cookie_policy: 'single_host_origin',
+			fetch_basic_profile: true
+		}).then(function(){
+			GoogleAuth = gapi.auth2.getAuthInstance();
+			self.login();
+		});
+	}
+
+	//Login to Google
+	self.login = function (){
+		notifyObservers();
+		//Check whether user is signed in
+		if(!GoogleAuth.isSignedIn.get()){
+			//Call login service
+			GoogleAuth.signIn().then(function(){
+				self.loadApi();
+			});
+		}
+		//Skip to API loading
+		else
+			self.loadApi();
+	};
+
+	//Get Google API
 	self.loadApi = function (){
 		//Finish login process
 		gapi.client.load('drive', 'v3').then(function() {
-			if(gapi.auth.getToken){
-				loggedIn = true;
-				notifyObservers();
-			}
+			//Get user data
+			GoogleUser = GoogleAuth.currentUser.get();
+			var data = GoogleUser.getBasicProfile();
+			self.name = data.getName();
+			self.email = data.getEmail();
+			self.ID = data.getId();
+
+			//Allow other processes to begin running
+			self.loginStatus();
+			notifyObservers();
+
+			//Log user for user analytics
+			ga('set', 'userId', self.email);
+			ga('send', 'pageview');
 		});
 	};
 
-	self.login = function (){
-		//If already logged in
-		if(loggedIn && gapi.auth.getToken()) return;
+	//HELPER FUNCTIONS
+	//Return access token
+	self.getToken = function (){
+		return GoogleUser.getAuthResponse().access_token;
+	}
 
-		//If GAPI hasn't finished loading, loop until ready
-		if (gapi.auth == undefined){
-			$timeout(self.login);
-			return;
-		}
-
-		var onAuth = function (response){
-			//If not logged in
-			if(response.error){
-				gapi.auth.authorize(
-					{
-						'client_id': CLIENT_ID,
-						'scope': SCOPES.join(' '),
-						'immediate': false
-					}).then(self.loadApi);
-			}
-			//If logged in
-			else{
-				self.loadApi();
-			}
-		};
-
-		//Try seeing if already logged in
-		gapi.auth.authorize(
-			{
-				'client_id': CLIENT_ID,
-				'scope': SCOPES.join(' '),
-				'immediate': true
-			}, onAuth
-		);
-	};
-
+	//Return whether user is logged in and API library has been loaded
 	self.loginStatus = function (){
-		return loggedIn;
+		return GoogleAuth && GoogleAuth.isSignedIn.get() && gapi.client.drive;
 	}
 
 	self.logout = function (){
-		gapi.auth.signOut();
+		GoogleAuth.signOut();
 		window.location = site;
 	}
 
-	self.login();
+	self.init();
 })
 
-.service('Data', function ($timeout, FBAuth, GAuth){
+.service('Data', function ($timeout, GAuth){
 	var self = this;
 	var gFile = new Object();
 	self.fileData = null;
@@ -198,7 +160,6 @@ angular.module('myApp')
 			gFile.kind = "drive#file";
 			gFile.name = "data";
 			gFile.mimeType = "text/plain";
-			console.log(gFile);
 			gapi.client.drive.files.get({
 				'fileId': gFile.id
 			}).execute(function(resp){
@@ -207,6 +168,7 @@ angular.module('myApp')
 					.then(function(){
 						window.location = site;
 					});
+				self.pull();
 			})
 		}
 
@@ -224,7 +186,7 @@ angular.module('myApp')
 					console.log("New file created!");
 					gFile = file;
 					gFile.savable = true;
-					var string = '[]\n[{"name":"Unsorted","completed":0,"hours":0}]\n[]\n'+FBAuth.name;
+					var string = '[]\n[{"name":"Unsorted","completed":0,"hours":0}]\n[]\n'+GAuth.name;
 					self.push(string, true);
 				});
 			}
@@ -232,7 +194,7 @@ angular.module('myApp')
 				gFile = resp.files[0];
 				gFile.savable = true;
 			}
-			console.log(gFile);
+			self.pull();
 		});
 	};
 
@@ -247,23 +209,14 @@ angular.module('myApp')
 		return site + '?share=' + gFile.id;
 	}
 
-	self.loginStatus = function (){
-		//If nothing has been initialized
-		if(gFile.id == undefined)
-			return false;
-		//If session has ended, redo
-		else if(gapi.auth.getToken() == null){
-			ons.notification.alert({message: "Lost connection to services. Page will be reloaded"})
-			.then(function(){
-				window.location = site;
-			});
-		}
-		return true;
-	}
-
 	self.listPermissions = function (){
-		self.loginStatus();
-
+		//Check if viewing a shared link
+		if(self.sharing()){
+			self.public = true;
+			notifyObservers();
+			return;
+		}
+		//Check set permissions
 		gapi.client.drive.permissions.list({
 			'fileId': gFile.id
 		}).execute(function(response){
@@ -273,20 +226,19 @@ angular.module('myApp')
 	}
 
 	self.makePrivate = function (){
-		self.loginStatus();
+		//Prevent viewers from modifying owner's permissions
+		if(!gFile.savable)
+			return;
 
 		var request = gapi.client.drive.permissions.delete({
 			'fileId': gFile.id,
 			'permissionId': 'anyoneWithLink'
 		}).execute(function(response){
-			console.log(response);
 			self.listPermissions();
 		});
 	}
 
 	self.makePublic = function (){
-		self.loginStatus();
-
 		var body = {
 			'type': 'anyone',
 			'role': 'reader'
@@ -296,20 +248,14 @@ angular.module('myApp')
 			'fileId': gFile.id,
 			'resource': body
 		}).execute(function(response){
-			console.log(response);
 			self.listPermissions();
 		});
 	}
 
 	self.pull = function (){
-		if(!self.loginStatus()){
-			$timeout(self.pull);
-			return;
-		}
-
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', 'https://www.googleapis.com/drive/v3/files/' + gFile.id + '?alt=media');
-		xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
+		xhr.setRequestHeader('Authorization', 'Bearer ' + GAuth.getToken());
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4 && xhr.status == 200 ){
 				self.fileData = xhr.response;
@@ -322,15 +268,12 @@ angular.module('myApp')
 	};
 
 	self.push = function (data, pull){
-		//Check to make sure still logged in
-		self.loginStatus();
-
 		//Overwrite old file data
 		self.fileData = data;
 
 		var xhr = new XMLHttpRequest();
 		xhr.open('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/' + gFile.id + '?uploadType=media');
-		xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
+		xhr.setRequestHeader('Authorization', 'Bearer ' + GAuth.getToken());
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4 && xhr.status == 200 ){
 				console.log("File saved");
@@ -348,9 +291,11 @@ angular.module('myApp')
 	}
 
 	self.save = function (data){
-		//Basic lock
-		if(self.cntr > 0 || !self.timeLock || !gFile.savable)
+		//Basic lock; update controllers even if not saving to persistent storage
+		if(self.cntr > 0 || !self.timeLock || !gFile.savable){
+			notifyObservers();
 			return;
+		}
 
 		//Set state to "saving"
 		self.saved = 1;
@@ -366,16 +311,18 @@ angular.module('myApp')
 		self.push(data);
 	}
 
+	self.sharing = function (){
+		return !gFile.savable;
+	}
+
 	self.timer = function (){
 		self.timeLock = true;
 	}
 
 	self.destroy = function (){
-		self.loginStatus();
-
 		var xhr = new XMLHttpRequest();
 		xhr.open('DELETE', 'https://www.googleapis.com/drive/v3/files/' + gFile.id);
-		xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
+		xhr.setRequestHeader('Authorization', 'Bearer ' + GAuth.getToken());
 		xhr.onreadystatechange = function() {
 			if(xhr.readyState == 4){
 				console.log("Profile destroyed");

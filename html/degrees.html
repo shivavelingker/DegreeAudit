@@ -44,10 +44,13 @@
 	<br>
 
 	<div id="expandable">
-	<ons-row style="padding: 10px; text-align: center;">
-		<ons-col ng-repeat="degree in degrees" style="padding-right: 5px;">
+	<ons-row style="padding: 10px;">
+		<ons-col ng-repeat="degree in degrees" style="padding-right: 10px;">
 			<ons-row style="margin-bottom: 10px;">
-				<ons-button modifier="light" ng-click="modifyDegree(degree)">
+				<ons-button
+				 style="text-align: center; width: 100%;"
+				 modifier="bTeal"
+				 ng-click="modifyDegree(degree)">
 					{{ degree.name }}
 				</ons-button>
 			</ons-row>
@@ -69,7 +72,7 @@
 						<div class="left" style="color: {{ req.reqColor }};">
 							<ons-icon icon="ion-alert-circled" ng-if="req.warning == 1">&nbsp;&nbsp;</ons-icon>
 							<ons-icon icon="ion-close-round" ng-if="req.warning == 2">&nbsp;&nbsp;</ons-icon>
-							{{ req.title }} : {{ req.hours }} {{ pl(req.hours) }}
+							{{ req.title }} : {{ req.hours }} hr{{ pl(req.hours) }}
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 							<div ng-if="req.warning == 1">
 								<i><u>Courses not scheduled</u></i>
@@ -96,7 +99,7 @@
 				</ons-list>
 				<ons-list modifier="inset" class="small" style="margin-top: 5px; width: 100%;">
 					<ons-list-item modifier="longdivider" ng-repeat="satisfy in req.satisfy">
-						{{ course(satisfy) }}
+						{{ courseColoration(satisfy) }}
 						<div class="left" ng-switch="status" style="color: {{ color }};">
 							<ons-icon
 								ng-switch-when="0"

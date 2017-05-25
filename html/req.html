@@ -26,8 +26,7 @@
 						{{ chosen.abbr }}
 					</ons-col>
 					<ons-col width="100px">
-						{{ chosen.hours }}
-						{{ pl() }}
+						{{ chosen.hours }} hr{{ pl() }}
 					</ons-col>
 					<ons-col>
 						{{ chosen.name }}
@@ -39,7 +38,7 @@
 					</ons-col>
 				</ons-list-item>
 				<ons-list-item
-					ng-click="pushClass()"
+					ng-click="listClasses()"
 					modifier="chevron"
 					tappable>
 					<i>Add course</i>
@@ -48,7 +47,7 @@
 		</p>
 		<p>
 			<ons-button style="width: 25%;" ng-click="save()" modifier="bBlue">Save</ons-button>
-			<ons-button style="width: 25%;" ng-click="close()" modifier="bOrange">Cancel</ons-button>
+			<ons-button style="width: 25%;" ng-click="cancel()" modifier="bOrange">Cancel</ons-button>
 		</p>
 		<p>
 			<ons-button style="width: 50%" ng-click="delete()" modifier="bRed">Delete</ons-button>

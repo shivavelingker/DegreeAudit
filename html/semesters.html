@@ -45,22 +45,28 @@
 	<br>
 	
 	<div id="expandable">
-	<ons-row style="padding: 10px;">
+	<ons-row style="width: 100%;">
 		<ons-col ng-repeat="semester in semesters" ng-switch="semester.completed" id="{{ semester.ID }}">
 			<div ng-switch-when="1">
-				<ons-button modifier="light" ng-click="modifySemester(semester)">
+				<ons-button
+				 style="margin: 10px;"
+				 modifier="bGreen"
+				 ng-click="modifySemester(semester)">
 					{{ semester.name }}
 				</ons-button>
 			</div>
 
 			<div ng-switch-when="0">
-				<ons-button modifier="light incomplete" ng-click="modifySemester(semester)">
+				<ons-button
+				 style="margin: 10px;"
+				 modifier="light incomplete"
+				 ng-click="modifySemester(semester)">
 					{{ semester.name }}
 				</ons-button>
 			</div>
 		</ons-col>
 	</ons-row>
-	<ons-row style="padding: 10px" class="expandableRow">
+	<ons-row>
 		<ons-col class="small" ng-repeat="semester in semesters">
 			<i><u>Total Hours: {{ semester.hours }}</u></i>
 		</ons-col>
@@ -71,7 +77,7 @@
 			<li
 				gridster-item="course"
 				ng-repeat="course in courses"
-				style="padding-top: 5px"
+				style="padding: 5px;"
 				class="small">
 					{{ course.abbr }} <br> {{ course.name }}
 			</li>

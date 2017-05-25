@@ -14,7 +14,9 @@
 
 	<div ng-switch="public" style="text-align: center;">
 		<div ng-switch-when="true">
-			<ons-button ng-click="makePrivate()">
+			<ons-button
+			 id="shareButton"
+			 ng-click="makePrivate()">
 				Make Private
 			</ons-button>
 

@@ -17,26 +17,30 @@
 		</div>
 	</ons-toolbar>
 
-	<ons-row>
 	<ons-list>
-		<ons-row>
 		<ons-list-item
-			class="item"
-			modifier="chevron"
-			ons-lazy-repeat="CourseDelegate"
-			ng-click="action(id)"
-			tappable>
+		 modifier="chevron"
+		 ng-repeat="course in courses"
+		 ng-click="action(course.ID)"
+		 tappable>
 			<ons-col width="125px">
-				{{ abbr }}
+				{{ course.abbr }}
 			</ons-col>
 			<ons-col width="100px">
-				{{ hours }} hr{{ pl }}
+				{{ course.hours }} hr{{ pl(course.hours) }}
 			</ons-col>
 			<ons-col>
-				{{ name }}
+				{{ course.name }}
 			</ons-col>
 		</ons-list-item>
-		</ons-row>
 	</ons-list>
-	</ons-row>
+
+	<ons-speed-dial position="bottom right" direction="up" ripple>
+		<ons-fab>
+			<ons-icon icon="md-plus"></ons-icon>
+		</ons-fab>
+		<ons-speed-dial-item>
+			<ons-icon icon="md-book" ng-click="addCourse()"></ons-icon>
+		</ons-speed-dial-item>
+	</ons-speed-dial>
 </ons-page>
