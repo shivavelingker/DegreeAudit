@@ -12,23 +12,30 @@
 
 	<div class="centered">
 		<p ng-if="signIn">
-			<ons-button ng-click="manualLogin()" modifier="quiet">
+			<ons-button
+			 ng-if="!isMobile()"
+			 ng-click="manualLogin()"
+			 modifier="quiet">
 				<img src="html/images/google.png"/>
+			</ons-button>
+			<ons-button
+			 ng-if="isMobile()"
+			 ng-click="manualLogin()"
+			 modifier="quiet">
+				<img src="html/images/google_small.png"/>
 			</ons-button>
 		</p>
 		<p ng-if="GLoggedIn">
 			<br><br><br>
 			<ons-icon icon="ion-checkmark" size="40px"></ons-icon>
 		</p>
-
-		<br>
-
-		<ons-toast
-			var="loginToast"
-			animation="fall">
-			<center>
-				Click on the top-left menu button to get started!
-			</center>
-		</ons-toast>
 	</div>
+
+	<ons-toast
+		var="loginToast"
+		animation="fall">
+		<center>
+		Click the top-left menu button to start!
+		</center>
+	</ons-toast>
 </ons-page>

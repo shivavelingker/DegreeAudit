@@ -7,7 +7,7 @@
             </ons-toolbar-button>
 		</div>
 		<div class="center">
-			Master Plan for {{ name }}
+			Master Plan
 		</div>
 		<div class="right" ng-switch="saved">
 			<ons-button
@@ -43,46 +43,55 @@
 	</ons-toolbar>
 
 	<br>
+
+	<ons-toast
+	 var="dragToast"
+	 animation="fall"
+	 animation-options="{duration: 0.5}">
+		<center>
+			Drag-and-drop is disabled on mobile
+		</center>
+	</ons-toast>
 	
 	<div id="expandable">
-	<ons-row style="width: 100%;">
-		<ons-col ng-repeat="semester in semesters" ng-switch="semester.completed" id="{{ semester.ID }}">
-			<div ng-switch-when="1">
-				<ons-button
-				 style="margin: 10px;"
-				 modifier="bGreen"
-				 ng-click="modifySemester(semester)">
-					{{ semester.name }}
-				</ons-button>
-			</div>
+		<ons-row style="width: 100%;">
+			<ons-col ng-repeat="semester in semesters" ng-switch="semester.completed" id="{{ semester.ID }}">
+				<div ng-switch-when="1">
+					<ons-button
+					 style="margin: 10px;"
+					 modifier="bGreen"
+					 ng-click="modifySemester(semester)">
+						{{ semester.name }}
+					</ons-button>
+				</div>
 
-			<div ng-switch-when="0">
-				<ons-button
-				 style="margin: 10px;"
-				 modifier="light incomplete"
-				 ng-click="modifySemester(semester)">
-					{{ semester.name }}
-				</ons-button>
-			</div>
-		</ons-col>
-	</ons-row>
-	<ons-row>
-		<ons-col class="small" ng-repeat="semester in semesters">
-			<i><u>Total Hours: {{ semester.hours }}</u></i>
-		</ons-col>
-	</ons-row>
+				<div ng-switch-when="0">
+					<ons-button
+					 style="margin: 10px;"
+					 modifier="light incomplete"
+					 ng-click="modifySemester(semester)">
+						{{ semester.name }}
+					</ons-button>
+				</div>
+			</ons-col>
+		</ons-row>
+		<ons-row>
+			<ons-col class="small" ng-repeat="semester in semesters">
+				<i><u>Total Hours: {{ semester.hours }}</u></i>
+			</ons-col>
+		</ons-row>
 
-	<div gridster="gridsterOpts">
-		<ul>
-			<li
-				gridster-item="course"
-				ng-repeat="course in courses"
-				style="padding: 5px;"
-				class="small">
-					{{ course.abbr }} <br> {{ course.name }}
-			</li>
-		</ul>
-	</div>
+		<div gridster="gridsterOpts">
+			<ul>
+				<li
+					gridster-item="course"
+					ng-repeat="course in courses"
+					style="padding: 5px;"
+					class="small">
+						{{ course.abbr }} <br> {{ course.name }}
+				</li>
+			</ul>
+		</div>
 	</div>
 
 	<ons-speed-dial position="bottom right" direction="up" ripple>

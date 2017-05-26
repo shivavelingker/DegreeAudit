@@ -111,6 +111,11 @@ var profileToast = function() {
   });
 }
 
+var isMobile = function() {
+  var OP = ons.platform;
+  return OP.isIOS() || OP.isAndroid() || OP.isBlackBerry() || OP.isIE();
+}
+
 angular.module('myApp')
 
 .controller('Menu', ['$scope', 'Data', function($scope, Data) {
@@ -139,6 +144,7 @@ angular.module('myApp')
 
 .controller("LoginCtrl", function($scope, $timeout, GAuth, Data) {
   $scope.signIn = false;
+  $scope.isMobile = isMobile;
 
   $scope.init = function (){
     //Notify controller when signing in has begun, to show button
@@ -243,6 +249,7 @@ angular.module('myApp')
 .controller("CoursesCtrl", function($scope, $timeout, Data) {
   $scope.courses = courses;
   $scope.backButton = false;
+  $scope.isMobile = isMobile;
 
   $scope.init = function() {
     if(nav.topPage.data.actionable != undefined)
@@ -699,9 +706,8 @@ angular.module('myApp')
     //Resize window if necessary
     var desktopSize = Math.max(40*$scope.degrees.length, 100);
         desktopSize += "%";
-    var mobileSize = 500*$scope.degrees.length+"px";
-    var OP = ons.platform;
-    var chosenSize = (!OP.isIOS() && !OP.isAndroid() ? desktopSize : mobileSize);
+    var mobileSize = window.innerWidth*$scope.degrees.length+"px";
+    var chosenSize = (isMobile() ? mobileSize : desktopSize);
     angular.element(document.querySelector('#expandable')).attr("style","width:"+chosenSize);
 
     //Determine coloration
@@ -881,7 +887,7 @@ angular.module('myApp')
        enabled: false
     },
     draggable: {
-       enabled: true // whether dragging items is supported
+       enabled: !isMobile() // whether dragging items is supported
     }
   };
 
@@ -899,6 +905,12 @@ angular.module('myApp')
 
     //Watch for changes in all data
     Data.registerObserver(refresh);
+
+    //Notify Gridster is disabled
+    if(isMobile()){
+      document.querySelector('ons-toast').show();
+      $timeout(function(){ document.querySelector('ons-toast').hide(); }, 3000);
+    }
   }
 
   $scope.addCourse = function() {
@@ -1081,9 +1093,8 @@ angular.module('myApp')
     //Recalculate width of page
     var desktopSize = Math.max(20*$scope.semesters.length, 100);
         desktopSize += "%";
-    var mobileSize = 300*$scope.semesters.length+"px";
-    var OP = ons.platform;
-    var chosenSize = (!OP.isIOS() && !OP.isAndroid() ? desktopSize : mobileSize);
+    var mobileSize = window.innerWidth*$scope.semesters.length+"px";
+    var chosenSize = (isMobile() ? mobileSize : desktopSize);
     angular.element(document.querySelector('#expandable')).attr("style","width:"+chosenSize);
 
     //Reset hours for each semester
