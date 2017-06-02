@@ -173,48 +173,49 @@ angular.module('myApp')
 			})
 		}
 
-		if(gFile.id == undefined)
-		//Get data file
-		gapi.client.drive.files.list({"q": "name = 'data'","spaces":"appDataFolder"}).execute(function(resp, body){
-			//File needs to be created
-			if(resp.files.length == 0){
-				var file = new Object();
-				file.title = "data";
-				file.name = "data";
-				file.mimeType = "text/plain";
-				file.parents = "appDataFolder";
-				gapi.client.drive.files.create({"resource": file}).execute(function(file){
-					console.log("New file created!");
-					gFile = file;
+		if(gFile.id == undefined){
+			//Get data file from AppData Folder
+			gapi.client.drive.files.list({"q": "name = 'DegreeAuditJSON'","spaces":"appDataFolder"}).execute(function(resp, body){
+				//File needs to be created
+				if(resp.files.length == 0){
+					var file = new Object();
+					file.title = "DegreeAuditJSON";
+					file.name = "DegreeAuditJSON";
+					file.mimeType = "text/plain";
+					file.parents = ["appDataFolder"];
+					gapi.client.drive.files.create({"resource": file}).execute(function(file){
+						console.log("New file created!");
+						gFile = file;
+						gFile.savable = true;
+						var warning = "**Do not modify this file**\n";
+						var string = warning + GAuth.name+'\n[]\n[{"name":"Unsorted","completed":0,"hours":0}]\n[]';
+						self.push(string, true, gFile.id);
+					});
+				}
+				else{
+					gFile = resp.files[0];
 					gFile.savable = true;
-					var string = '[]\n[{"name":"Unsorted","completed":0,"hours":0}]\n[]\n'+GAuth.name;
-					self.push(string, true);
-				});
-			}
-			else{
-				gFile = resp.files[0];
-				gFile.savable = true;
-			}
-			self.pull();
-		});
-		gapi.client.drive.files.list({"q": "name = 'DegreeAuditData.gz'"}).execute(function(resp, body){
-			//File needs to be created
-			if(resp.files.length == 0){
-				var file = new Object();
-				file.title = "DegreeAuditData";
-				file.name = "DegreeAuditData";
-				file.mimeType = "application/rar";
-				gapi.client.drive.files.create({"resource": file}).execute(function(file){
-					console.log("New user file created!");
-					uFile = file;
-					uFile.savable = true;
-				});
-			}
-			else{
-				uFile = resp.files[0];
-				uFile.savable = true;
-			}
-		});
+				}
+				self.pull();
+			});
+			//Get file stored on user side
+			gapi.client.drive.files.list({"q": "name = 'DegreeAuditData.gz'"}).execute(function(resp, body){
+				//File needs to be created
+				if(resp.files.length == 0){
+					var file = new Object();
+					file.title = "DegreeAuditData.gz";
+					file.name = "DegreeAuditData.gz";
+					file.mimeType = "application/rar";
+					gapi.client.drive.files.create({"resource": file}).execute(function(file){
+						console.log("New user file created!");
+						uFile = file;
+					});
+				}
+				else{
+					uFile = resp.files[0];
+				}
+			});
+		}
 	};
 
 	self.dirty = function (){
@@ -225,7 +226,7 @@ angular.module('myApp')
 	}
 
 	self.getId = function (){
-		return site + '?share=' + gFile.id;
+		return site + '?share=' + uFile.id;
 	}
 
 	self.listPermissions = function (){
@@ -329,22 +330,7 @@ angular.module('myApp')
 
 		self.push(data, false, gFile.id);
 		self.push(data, false, uFile.id);
-		self.setMimetype();
 	}
-
-	self.setMimetype = function (){
-		uFile.mimeType = "application/rar";
-
-		var xhr = new XMLHttpRequest();
-		xhr.open('PATCH', 'https://www.googleapis.com/drive/v3/files/' + uFile.id);
-		xhr.setRequestHeader('Authorization', 'Bearer ' + GAuth.getToken());
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState == 4 && xhr.status == 200 ){
-				console.log("File metadata updated");
-			}
-		}
-		xhr.send(uFile);
-}
 
 	self.sharing = function (){
 		return !gFile.savable;
@@ -370,7 +356,7 @@ angular.module('myApp')
 				if(terminate)
 					window.location = "";
 				else
-					destroy(true);
+					self.destroy(true);
 			}
 		}
 		xhr.send();

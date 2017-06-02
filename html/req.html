@@ -10,12 +10,23 @@
 
 	<div style="text-align: center; margin-top: 30px;">
 		<p>
-			<ons-input ng-model="req.title" placeholder="Title"
-				float modifier="underbar" style="width: 50%;"></ons-input>
+			<ons-input
+				ng-model="req.title"
+				placeholder="Title"
+				ng-enter="save()"
+				float
+				modifier="underbar"
+				style="width: 50%;"></ons-input>
 		</p>
 		<p>
 			Hours: {{ req.hours }}
-			<ons-range style="width: 50%;" ng-model="req.hours" min="1" max="25" step="1"></ons-range>
+			<ons-range
+				style="width: 50%;"
+				ng-model="req.hours"
+				ng-enter="save()"
+				min="1"
+				max="25"
+				step="1"></ons-range>
 		</p>
 		<p>
 			<ons-list modifier="inset" style="width: 75%; margin-left: auto; margin-right: auto;">

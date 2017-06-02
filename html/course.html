@@ -10,27 +10,57 @@
 
 	<div style="text-align: center; margin-top: 30px;">
 		<p>
-			<ons-input ng-model="course.abbr" placeholder="Abbreviation"
-				float modifier="underbar" style="width: 50%;"></ons-input>
+			<ons-input
+				ng-model="course.abbr"
+				placeholder="Abbreviation"
+				float modifier="underbar"
+				ng-enter="save()"
+				style="width: 50%;"></ons-input>
+		</p>
+		<p modal="shouldBeOpen">
+			<ons-input
+				type="text"
+				ng-model="course.name"
+				placeholder="Course Name"
+				id="AutoInput"
+				focus-me="shouldBeOpen"
+				float modifier="underbar"
+				ng-enter="save()"
+				style="width: 50%;"></ons-input>
 		</p>
 		<p>
-			<ons-input ng-model="course.name" placeholder="Course Name"
-				float modifier="underbar" style="width: 50%;"></ons-input>
-		</p>
-		<p>
-			<ons-input ng-model="course.notes" placeholder="Additional Notes"
-				float modifier="underbar" style="width: 50%;"></ons-input>
+			<ons-input
+				ng-model="course.notes"
+				placeholder="Additional Notes"
+				float modifier="underbar"
+				ng-enter="save()"
+				style="width: 50%;"></ons-input>
 		</p>
 		<p>
 			Hours: {{ course.hours }}
-			<ons-range style="width: 50%;"ng-model="course.hours" min="1" max="10" step="1"></ons-range>
+			<ons-range
+				style="width: 50%;"
+				ng-model="course.hours"
+				min="1"
+				max="10"
+				step="1"
+				ng-enter="save()"></ons-range>
 		</p>
 		<p>
-			<ons-button style="width: 25%;" ng-click="save()" modifier="bBlue">Save</ons-button>
-			<ons-button style="width: 25%;" ng-click="close()" modifier="bOrange">Cancel</ons-button>
+			<ons-button
+				style="width: 25%;"
+				ng-click="save()"
+				modifier="bBlue">Save</ons-button>
+			<ons-button
+				style="width: 25%;"
+				ng-click="close()"
+				modifier="bOrange">Cancel</ons-button>
 		</p>
 		<p>
-			<ons-button style="width: 50%" ng-click="delete()" modifier="bRed">Delete</ons-button>
+			<ons-button
+				style="width: 50%"
+				ng-click="delete()"
+				modifier="bRed">Delete</ons-button>
 		</p>
 	</div>
 </ons-page>

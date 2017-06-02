@@ -41,8 +41,10 @@ var addCourse = function() {
     ons.notification.prompt({message: "Course Abbreviation", cancelable: true})
       .then(function(abbr) {
         //Prevent blank course
-        if(abbr == null || abbr.trim() == "")
+        if(abbr == null || abbr.trim() == ""){
           resolve(null);
+          return;
+        }
 
         //Update course
         newCourse.abbr = abbr;
@@ -72,13 +74,15 @@ var updateData = function() {
   //Sort operation
   courses = orderObjectBy(courses, 'abbr');
 
+  var warning = "**DO NOT MODIFY THIS FILE**\n";
+
   //Convert relevant data to string
   var dataD = angular.toJson(angular.copy(degrees));
   var dataS = angular.toJson(angular.copy(semesters));
   var dataC = angular.toJson(angular.copy(courses));
 
   //Parse data together
-  return dataD + "\n" + dataS + "\n" + dataC + "\n" + name;
+  return warning + name + "\n" + dataD + "\n" + dataS + "\n" + dataC;
 }
 
 var orderObjectBy = 
@@ -164,15 +168,15 @@ angular.module('myApp')
     $scope.GLoggedIn = GAuth.loginStatus();
 
     if (angular.equals(semesters, [])){
-      var str = (Data.fileData ? Data.fileData.split("\n") : [null, null, null]);
+      var str = (Data.fileData ? Data.fileData.split("\n") : [null, null, null, null, null]);
 
-      name = (str[3] && str[3] != undefined ? str[3] : GAuth.name);
+      name = (str[1] && str[1] != undefined ? str[1] : GAuth.name);
 
-      degrees = (str[0] && str[0] != undefined ? json_parse(str[0]) : []);
+      degrees = (str[2] && str[2] != undefined ? json_parse(str[2]) : []);
 
-      semesters = (str[1] && str[1] != undefined ? json_parse(str[1]) : []);
+      semesters = (str[3] && str[3] != undefined ? json_parse(str[3]) : []);
 
-      courses = (str[2] && str[2] != undefined ? json_parse(str[2]) : []);
+      courses = (str[4] && str[4] != undefined ? json_parse(str[4]) : []);
 
       //Remove sign in button
       $scope.signIn = false;
@@ -199,6 +203,7 @@ angular.module('myApp')
     //Keep original and new copy of course to check for modifications
     $scope.old = getCourse(nav.topPage.data.course);
     $scope.course = angular.copy($scope.old);
+    $scope.shouldBeOpen = (nav.topPage.data.focus != undefined ? false : true);
   }
 
 
@@ -290,7 +295,7 @@ angular.module('myApp')
   }
 
   $scope.editCourse = function(chosen) {
-    nav.pushPage('html/course.html', { data : { course: chosen } });
+    nav.pushPage('html/course.html', { data : { course: chosen, focus: false } });
   }
 
   $scope.pl = function(hours){
@@ -375,7 +380,7 @@ angular.module('myApp')
   }
 
   $scope.editCourse = function(ID) {
-    nav.pushPage('html/course.html', { data : { course: ID } });
+    nav.pushPage('html/course.html', { data : { course: ID, focus: false } });
   }
 
   $scope.listClasses = function() {
@@ -558,7 +563,7 @@ angular.module('myApp')
     //Course has been completed
     if(semesters[semester].completed){
       $scope.status = 0;
-      $scope.color = "#75d3d1";
+      $scope.color = "#008080";
     }
     //Course has not been scheduled
     else if(semester == semesters.length - 1){
@@ -1186,5 +1191,36 @@ angular.module('myApp')
     GAuth.logout();
   }
 }])
+
+//Directive to auto-focus for CourseCtrl
+.directive('focusMe', function($timeout, $parse) {
+  return {
+    link: function(scope, element, attrs) {
+      var model = $parse(attrs.focusMe);
+      scope.$watch(model, function(value) {
+        if(value === true) { 
+          $timeout(function() {
+            element[0]._input.focus(); 
+          });
+        }
+      });
+    }
+  };
+})
+
+//Allow Enter key to be used to submit form
+.directive('ngEnter', function() {
+  return function(scope, element, attrs) {
+    element.bind("keydown keypress", function(event) {
+      if(event.which === 13) {
+        scope.$apply(function(){
+          scope.$eval(attrs.ngEnter, {'event': event});
+        });
+
+        event.preventDefault();
+      }
+    });
+  };
+})
 
 ;
