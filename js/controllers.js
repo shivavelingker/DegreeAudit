@@ -1179,7 +1179,7 @@ angular.module('myApp')
 
   $scope.delete = function() {
     angular.element(document.querySelector('#delButton')).attr("disabled","true");
-    Data.destroy();
+    Data.destroy(false);
   }
 
   $scope.logout = function() {

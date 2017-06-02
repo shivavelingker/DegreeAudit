@@ -113,6 +113,7 @@ angular.module('myApp')
 .service('Data', function ($timeout, GAuth){
 	var self = this;
 	var gFile = new Object();
+	var uFile = new Object();
 	self.fileData = null;
 	self.cntr = 0;
 	self.timeLock = true;
@@ -174,14 +175,14 @@ angular.module('myApp')
 
 		if(gFile.id == undefined)
 		//Get data file
-		gapi.client.drive.files.list({"q": "name = 'data'"}).execute(function(resp, body){
+		gapi.client.drive.files.list({"q": "name = 'data'","spaces":"appDataFolder"}).execute(function(resp, body){
 			//File needs to be created
 			if(resp.files.length == 0){
 				var file = new Object();
 				file.title = "data";
 				file.name = "data";
 				file.mimeType = "text/plain";
-				file.body = "New stuff";
+				file.parents = "appDataFolder";
 				gapi.client.drive.files.create({"resource": file}).execute(function(file){
 					console.log("New file created!");
 					gFile = file;
@@ -195,6 +196,24 @@ angular.module('myApp')
 				gFile.savable = true;
 			}
 			self.pull();
+		});
+		gapi.client.drive.files.list({"q": "name = 'DegreeAuditData.gz'"}).execute(function(resp, body){
+			//File needs to be created
+			if(resp.files.length == 0){
+				var file = new Object();
+				file.title = "DegreeAuditData";
+				file.name = "DegreeAuditData";
+				file.mimeType = "application/rar";
+				gapi.client.drive.files.create({"resource": file}).execute(function(file){
+					console.log("New user file created!");
+					uFile = file;
+					uFile.savable = true;
+				});
+			}
+			else{
+				uFile = resp.files[0];
+				uFile.savable = true;
+			}
 		});
 	};
 
@@ -218,7 +237,7 @@ angular.module('myApp')
 		}
 		//Check set permissions
 		gapi.client.drive.permissions.list({
-			'fileId': gFile.id
+			'fileId': uFile.id
 		}).execute(function(response){
 			self.public = ((response.permissions.length == 2) ? true : false)
 			notifyObservers();
@@ -231,7 +250,7 @@ angular.module('myApp')
 			return;
 
 		var request = gapi.client.drive.permissions.delete({
-			'fileId': gFile.id,
+			'fileId': uFile.id,
 			'permissionId': 'anyoneWithLink'
 		}).execute(function(response){
 			self.listPermissions();
@@ -245,7 +264,7 @@ angular.module('myApp')
 		};
 
 		var request = gapi.client.drive.permissions.create({
-			'fileId': gFile.id,
+			'fileId': uFile.id,
 			'resource': body
 		}).execute(function(response){
 			self.listPermissions();
@@ -267,12 +286,12 @@ angular.module('myApp')
 		xhr.send();
 	};
 
-	self.push = function (data, pull){
+	self.push = function (data, pull, FILE_ID){
 		//Overwrite old file data
 		self.fileData = data;
 
 		var xhr = new XMLHttpRequest();
-		xhr.open('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/' + gFile.id + '?uploadType=media');
+		xhr.open('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/' + FILE_ID + '?uploadType=media');
 		xhr.setRequestHeader('Authorization', 'Bearer ' + GAuth.getToken());
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4 && xhr.status == 200 ){
@@ -308,8 +327,24 @@ angular.module('myApp')
 		//Set timer for releasing one lock		
 		$timeout(self.timer, 5000);
 
-		self.push(data);
+		self.push(data, false, gFile.id);
+		self.push(data, false, uFile.id);
+		self.setMimetype();
 	}
+
+	self.setMimetype = function (){
+		uFile.mimeType = "application/rar";
+
+		var xhr = new XMLHttpRequest();
+		xhr.open('PATCH', 'https://www.googleapis.com/drive/v3/files/' + uFile.id);
+		xhr.setRequestHeader('Authorization', 'Bearer ' + GAuth.getToken());
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4 && xhr.status == 200 ){
+				console.log("File metadata updated");
+			}
+		}
+		xhr.send(uFile);
+}
 
 	self.sharing = function (){
 		return !gFile.savable;
@@ -319,14 +354,23 @@ angular.module('myApp')
 		self.timeLock = true;
 	}
 
-	self.destroy = function (){
+	self.destroy = function (terminate){
+		var FILE_ID;
+		if(terminate)
+			FILE_ID = uFile.id;
+		else
+			FILE_ID = gFile.id;
+
 		var xhr = new XMLHttpRequest();
-		xhr.open('DELETE', 'https://www.googleapis.com/drive/v3/files/' + gFile.id);
+		xhr.open('DELETE', 'https://www.googleapis.com/drive/v3/files/' + FILE_ID);
 		xhr.setRequestHeader('Authorization', 'Bearer ' + GAuth.getToken());
 		xhr.onreadystatechange = function() {
 			if(xhr.readyState == 4){
 				console.log("Profile destroyed");
-				window.location = "";
+				if(terminate)
+					window.location = "";
+				else
+					destroy(true);
 			}
 		}
 		xhr.send();
