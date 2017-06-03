@@ -1,5 +1,4 @@
 <ons-page ng-controller="SemesterCtrl" ng-init="init()">
-
 	<ons-toolbar>
 		<div class="left">
 			<ons-toolbar-button ng-click="menu.left.open()">
@@ -52,6 +51,15 @@
 			Drag-and-drop is disabled on mobile
 		</center>
 	</ons-toast>
+
+	<ons-toast
+	 id="semesterToast"
+	 animation="fall"
+	 animation-options="{duration: 0.5}">
+		<center>
+			Once you add a semester, click on it for more options
+		</center>
+	</ons-toast>
 	
 	<div id="expandable">
 		<ons-row style="width: 100%;">
@@ -94,7 +102,11 @@
 		</div>
 	</div>
 
-	<ons-speed-dial position="bottom right" direction="up" ripple>
+	<ons-speed-dial
+		id="speedDial"
+		position="bottom right"
+		direction="up"
+		ripple>
 		<ons-fab>
 			<ons-icon icon="md-plus"></ons-icon>
 		</ons-fab>

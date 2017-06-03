@@ -170,7 +170,8 @@ angular.module('myApp')
 						window.location = site;
 					});
 				self.pull();
-			})
+			});
+			uFile = gFile;
 		}
 
 		if(gFile.id == undefined){

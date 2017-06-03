@@ -54,9 +54,19 @@
 	<ons-navigator var="nav" page="html/menu.html">
 	</ons-navigator>
 
-	<ons-template id="details.html">
+	<ons-template id="popoverUp.html">
 		<ons-popover
 		 direction="up"
+		 cancelable>
+		 	<div style="padding: 10px; text-align: center;">
+				{{ message }}
+			</div>
+		</ons-popover>
+	</ons-template>
+
+	<ons-template id="popoverLeft.html">
+		<ons-popover
+		 direction="left"
 		 cancelable>
 		 	<div style="padding: 10px; text-align: center;">
 				{{ message }}

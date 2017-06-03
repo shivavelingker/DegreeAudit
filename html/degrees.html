@@ -41,6 +41,15 @@
 		</div>
 	</ons-toolbar>
 
+	<ons-toast
+	 id="degreeToast"
+	 animation="fall"
+	 animation-options="{duration: 0.5}">
+		<center>
+			Once you add a degree plan, click on it for more options
+		</center>
+	</ons-toast>
+
 	<br>
 
 	<div id="expandable">
@@ -147,7 +156,11 @@
 	</ons-row>
 	</div>
 
-	<ons-speed-dial position="bottom right" direction="up" ripple>
+	<ons-speed-dial
+		id="speedDial"
+		position="bottom right"
+		direction="up"
+		ripple>
 		<ons-fab>
 			<ons-icon icon="md-plus"></ons-icon>
 		</ons-fab>

@@ -115,6 +115,14 @@ var profileToast = function() {
   });
 }
 
+var speedDial = function(scope, msg) {
+  scope.message = msg;
+  ons.createPopover('popoverLeft.html', { parentScope: scope})
+  .then(function(popover){
+    popover.show(document.getElementById("speedDial"));
+  });
+}
+
 var isMobile = function() {
   var OP = ons.platform;
   return OP.isIOS() || OP.isAndroid() || OP.isBlackBerry() || OP.isIE();
@@ -257,9 +265,16 @@ angular.module('myApp')
   $scope.isMobile = isMobile;
 
   $scope.init = function() {
+    //Determine why controller was instantiated
     if(nav.topPage.data.actionable != undefined)
       $scope.backButton = true;
+
+    //Register observer
     Data.registerObserver($scope.refresh);
+
+    //Notify of speed dial location
+    if($scope.courses.length == 0)
+      speedDial($scope, "Click here to add a class");
   }
 
   $scope.action = function(chosenID) {
@@ -459,6 +474,14 @@ angular.module('myApp')
 
     //Watch for changes in all data
     Data.registerObserver($scope.refresh);
+
+    //Notify of speed dial location
+    if($scope.degrees.length == 0)
+      speedDial($scope, "Click here to add a degree plan or class");
+
+    //Notify degree buttons feature
+    document.getElementById("degreeToast").show();
+    $timeout(function(){ document.getElementById("degreeToast").hide(); }, 5000);
   }
 
   $scope.addCourse = function() {
@@ -831,7 +854,7 @@ angular.module('myApp')
 
   $scope.showDetails = function(ID){
     $scope.message = getCourse(ID).notes;
-    ons.createPopover('details.html', { parentScope: $scope})
+    ons.createPopover('popoverUp.html', { parentScope: $scope})
     .then(function(popover){
       popover.show(event);
     });
@@ -916,6 +939,15 @@ angular.module('myApp')
       document.querySelector('ons-toast').show();
       $timeout(function(){ document.querySelector('ons-toast').hide(); }, 3000);
     }
+    //Notify semester buttons features
+    else{
+      document.getElementById("semesterToast").show();
+      $timeout(function(){ document.getElementById("semesterToast").hide(); }, 3000);
+    }
+
+    //Notify of speed dial location
+    if($scope.semesters.length <= 1 || $scope.courses.length == 0)
+      speedDial($scope, "Click here to add a semester or class");
   }
 
   $scope.addCourse = function() {
@@ -1160,6 +1192,16 @@ angular.module('myApp')
   $scope.init = function() {
     Data.registerObserver($scope.refresh);
     Data.listPermissions();
+  }
+
+  $scope.copy = function() {
+    document.getElementById("shareInput")._input.select();
+    document.execCommand("copy");
+    document.getSelection().removeAllRanges();
+
+    //Notify link copied
+    document.getElementById("shareToast").show();
+    $timeout(function(){ document.getElementById("shareToast").hide(); }, 5000);
   }
 
   $scope.makePrivate = function() {

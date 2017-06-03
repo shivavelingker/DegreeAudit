@@ -10,12 +10,22 @@
 		</div>
 	</ons-toolbar>
 
+	<ons-toast
+	 id="shareToast"
+	 animation="lift"
+	 animation-options="{duration: 0.5}">
+		<center>
+			Link copied!
+		</center>
+	</ons-toast>
+
 	<br><br>
 
 	<div ng-switch="public" style="text-align: center;">
 		<div ng-switch-when="true">
 			<ons-button
 			 id="shareButton"
+			 modifier="bOrange"
 			 ng-click="makePrivate()">
 				Make Private
 			</ons-button>
@@ -27,10 +37,17 @@
 			<br><br>
 
 			<ons-input
+				id="shareInput"
 				type="text"
 				readonly="readonly"
 				modifier="underbar"
 				value="{{ shareId }}"></ons-input>
+
+			<br><br>
+
+			<ons-button modifier="bTeal" ng-click="copy()">
+				Copy Link
+			</ons-button>
 		</div>
 		<div ng-switch-when="false">
 			<ons-button ng-click="makePublic()">
