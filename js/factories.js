@@ -230,6 +230,10 @@ angular.module('myApp')
 		return site + '?share=' + uFile.id;
 	}
 
+	self.import = function (){
+		//
+	}
+
 	self.listPermissions = function (){
 		//Check if viewing a shared link
 		if(self.sharing()){

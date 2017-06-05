@@ -134,7 +134,7 @@ angular.module('myApp')
   $scope.saved = Data.saved;
 
   $scope.load = function(page) {
-    menu.content.load(page).then(function() {
+    nav.replacePage(page).then(function() {
         menu.left.close();
       });
   };
@@ -266,7 +266,7 @@ angular.module('myApp')
 
   $scope.init = function() {
     //Determine why controller was instantiated
-    if(nav.topPage.data.actionable != undefined)
+    if(nav.topPage.data && nav.topPage.data.actionable != undefined)
       $scope.backButton = true;
 
     //Register observer
@@ -279,7 +279,7 @@ angular.module('myApp')
 
   $scope.action = function(chosenID) {
     //If returning course back to ReqCtrl
-    if(nav.topPage.data.actionable){
+    if(nav.topPage.data && nav.topPage.data.actionable){
       nav.topPage.data.actionable(
                   nav.topPage.data.degIdx,
                   nav.topPage.data.reqIdx,
@@ -1222,6 +1222,13 @@ angular.module('myApp')
 
 .controller("SettingsCtrl", ['$scope', 'GAuth', 'Data', function($scope, GAuth, Data) {
   $scope.init = function() {
+  }
+
+  $scope.export = function() {
+    var b = document.getElementById("exportButton");
+    b.download = "data.json";
+    b.textContent = "data.json";
+    b.href = 'data:application/json;base64,'+window.btoa(unescape(encodeURIComponent(updateData())));
   }
 
   $scope.delete = function() {
