@@ -469,6 +469,12 @@ angular.module('myApp')
     //Watch for changes in all data
     Data.registerObserver($scope.refresh);
 
+    //Set min width
+    if(isMobile())
+      $scope.minWidth = 0;
+    else
+      $scope.minWidth = 400;
+
     //Calculate degree percentages
     $scope.recalculate();
 
