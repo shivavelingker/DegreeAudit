@@ -134,7 +134,7 @@ angular.module('myApp')
   $scope.saved = Data.saved;
 
   $scope.load = function(page) {
-    nav.replacePage(page).then(function() {
+    nav.resetToPage(page).then(function() {
         menu.left.close();
       });
   };
@@ -274,7 +274,7 @@ angular.module('myApp')
 
     //Notify of speed dial location
     if($scope.courses.length == 0)
-      speedDial($scope, "Click here to add a class");
+      $timeout(function() { speedDial($scope, "Click here to add a class"); });
   }
 
   $scope.action = function(chosenID) {
@@ -462,26 +462,25 @@ angular.module('myApp')
   $scope.name = name;
 
   $scope.init = function() {
-    console.log("degree init");
+    console.log("Load Degree View");
 
     $scope.degrees = degrees;
-
-    //Calculate degree percentages
-    $scope.recalculate();
-
-    //Update display
-    $timeout(50);
 
     //Watch for changes in all data
     Data.registerObserver($scope.refresh);
 
+    //Calculate degree percentages
+    $scope.recalculate();
+
     //Notify of speed dial location
     if($scope.degrees.length == 0)
-      speedDial($scope, "Click here to add a degree plan or class");
+      $timeout(function() { speedDial($scope, "Click here to add a degree plan or class"); });
 
     //Notify degree buttons feature
-    document.getElementById("degreeToast").show();
-    $timeout(function(){ document.getElementById("degreeToast").hide(); }, 5000);
+    $timeout(function() {
+      document.getElementById("degreeToast").show();
+      $timeout(function() { document.getElementById("degreeToast").hide(); }, 4000);
+    });
   }
 
   $scope.addCourse = function() {
@@ -736,7 +735,9 @@ angular.module('myApp')
         desktopSize += "%";
     var mobileSize = window.innerWidth*$scope.degrees.length+"px";
     var chosenSize = (isMobile() ? mobileSize : desktopSize);
-    angular.element(document.querySelector('#expandable')).attr("style","width:"+chosenSize);
+    $timeout(function() {
+      angular.element(document.querySelector('#expandable')).attr("style","width:"+chosenSize);
+    });
 
     //Determine coloration
     $scope.reqStatus();
@@ -882,9 +883,9 @@ angular.module('myApp')
 
 .controller('SemesterCtrl', ['$scope', '$timeout', 'Data', function($scope, $timeout, Data) {
   $scope.chosen = null;
+  $scope.widget = null;
   $scope.semesters = angular.copy(semesters);
   $scope.courses = angular.copy(courses);
-  serialized = angular.toJson(courses);
   $scope.saved = Data.saved;
   $scope.name = name;
 
@@ -915,34 +916,38 @@ angular.module('myApp')
        enabled: false
     },
     draggable: {
+       start: function(event, $element, widget) {
+          $scope.widget = angular.copy(widget);
+       },
+       stop: function(event, $element, widget) {
+        if(!angular.equals($scope.widget, widget))
+          $scope.dirty();
+       },
        enabled: !isMobile() // whether dragging items is supported
     }
   };
 
   $scope.init = function() {
-    console.log("semester init");
+    console.log("Load Semester View");
 
     $scope.update();
-
-    $scope.$watch('courses', function(n, o){
-      //Check for dirtiness
-      if(serialized !== angular.toJson($scope.courses)){
-        $scope.dirty();
-      }
-    }, true);
 
     //Watch for changes in all data
     Data.registerObserver(refresh);
 
     //Notify Gridster is disabled
     if(isMobile()){
-      document.querySelector('ons-toast').show();
-      $timeout(function(){ document.querySelector('ons-toast').hide(); }, 3000);
+      $timeout(function() {
+        document.querySelector('ons-toast').show();
+        $timeout(function() { document.querySelector('ons-toast').hide(); }, 4000);
+      });
     }
     //Notify semester buttons features
     else{
-      document.getElementById("semesterToast").show();
-      $timeout(function(){ document.getElementById("semesterToast").hide(); }, 3000);
+      $timeout(function() {
+        document.getElementById("semesterToast").show();
+        $timeout(function() { document.getElementById("semesterToast").hide(); }, 4000);
+      });
     }
 
     //Notify of speed dial location
@@ -1132,7 +1137,9 @@ angular.module('myApp')
         desktopSize += "%";
     var mobileSize = window.innerWidth*$scope.semesters.length+"px";
     var chosenSize = (isMobile() ? mobileSize : desktopSize);
-    angular.element(document.querySelector('#expandable')).attr("style","width:"+chosenSize);
+    $timeout(function() {
+      angular.element(document.querySelector('#expandable')).attr("style","width:"+chosenSize);
+    });
 
     //Reset hours for each semester
     angular.forEach($scope.semesters, function(semester) {
@@ -1177,9 +1184,6 @@ angular.module('myApp')
   var refresh = function() {
     //Pull new data
     $scope.saved = Data.saved;
-    $scope.semesters = angular.copy(semesters);
-    $scope.courses = angular.copy(courses);
-    serialized = angular.toJson(courses);
 
     //Update display
     $scope.update();
@@ -1201,7 +1205,7 @@ angular.module('myApp')
 
     //Notify link copied
     document.getElementById("shareToast").show();
-    $timeout(function(){ document.getElementById("shareToast").hide(); }, 5000);
+    $timeout(function(){ document.getElementById("shareToast").hide(); }, 4000);
   }
 
   $scope.makePrivate = function() {
