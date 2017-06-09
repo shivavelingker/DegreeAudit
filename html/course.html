@@ -8,13 +8,14 @@
 		</div>
 	</ons-toolbar>
 
-	<div style="text-align: center; margin-top: 30px;">
+	<div ng-enter="save()"
+		 style="text-align: center; margin-top: 30px;">
 		<p>
 			<ons-input
 				ng-model="course.abbr"
 				placeholder="Abbreviation"
 				float modifier="underbar"
-				ng-enter="save()"
+				
 				style="width: 50%;"></ons-input>
 		</p>
 		<p modal="shouldBeOpen">
@@ -25,7 +26,6 @@
 				id="AutoInput"
 				focus-me="shouldBeOpen"
 				float modifier="underbar"
-				ng-enter="save()"
 				style="width: 50%;"></ons-input>
 		</p>
 		<p>
@@ -33,7 +33,6 @@
 				ng-model="course.notes"
 				placeholder="Additional Notes"
 				float modifier="underbar"
-				ng-enter="save()"
 				style="width: 50%;"></ons-input>
 		</p>
 		<p>
@@ -43,8 +42,7 @@
 				ng-model="course.hours"
 				min="1"
 				max="10"
-				step="1"
-				ng-enter="save()"></ons-range>
+				step="1"></ons-range>
 		</p>
 		<p>
 			<ons-button

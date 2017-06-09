@@ -8,12 +8,12 @@
 		</div>
 	</ons-toolbar>
 
-	<div style="text-align: center; margin-top: 30px;">
+	<div ng-enter="save()"
+		 style="text-align: center; margin-top: 30px;">
 		<p>
 			<ons-input
 				ng-model="req.title"
 				placeholder="Title"
-				ng-enter="save()"
 				float
 				modifier="underbar"
 				style="width: 50%;"></ons-input>
@@ -23,7 +23,6 @@
 			<ons-range
 				style="width: 50%;"
 				ng-model="req.hours"
-				ng-enter="save()"
 				min="1"
 				max="25"
 				step="1"></ons-range>

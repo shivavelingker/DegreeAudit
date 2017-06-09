@@ -315,10 +315,12 @@ angular.module('myApp')
 		xhr.send(data);
 	}
 
-	self.save = function (data){
+	self.save = function (data, setDirty){
 		//Basic lock; update controllers even if not saving to persistent storage
 		if(self.cntr > 0 || !self.timeLock || !gFile.savable){
-			notifyObservers();
+			if(setDirty)
+				self.dirty();
+			ons.notification.alert("You can't save someone else's profile, but you can play around with it");
 			return;
 		}
 

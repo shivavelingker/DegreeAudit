@@ -252,7 +252,7 @@ angular.module('myApp')
     courses[pos] = $scope.course;
 
     //Save changes to file
-    Data.save(updateData());
+    Data.save(updateData(), true);
 
     //Pop page
     $scope.close();
@@ -270,7 +270,7 @@ angular.module('myApp')
       $scope.backButton = true;
 
     //Register observer
-    Data.registerObserver($scope.refresh);
+    Data.registerObserver(refresh);
 
     //Notify of speed dial location
     if($scope.courses.length == 0)
@@ -319,7 +319,7 @@ angular.module('myApp')
       return "s";
   }
 
-  $scope.refresh = function() {
+  var refresh = function() {
     //Pull new set of courses (in case list was sorted)
     $scope.courses = courses;
   }
@@ -440,7 +440,7 @@ angular.module('myApp')
     degrees = $scope.degrees;
 
     //Save changes to file
-    Data.save(updateData());
+    Data.save(updateData(), true);
 
     $scope.close();
   }
@@ -479,7 +479,9 @@ angular.module('myApp')
     //Notify degree buttons feature
     $timeout(function() {
       document.getElementById("degreeToast").show();
-      $timeout(function() { document.getElementById("degreeToast").hide(); }, 4000);
+      $timeout(function() { 
+        if(document.getElementById("degreeToast"))
+          document.getElementById("degreeToast").hide(); }, 4000);
     });
   }
 
@@ -939,14 +941,18 @@ angular.module('myApp')
     if(isMobile()){
       $timeout(function() {
         document.querySelector('ons-toast').show();
-        $timeout(function() { document.querySelector('ons-toast').hide(); }, 4000);
+        $timeout(function() { 
+          if(document.querySelector('ons-toast'))
+            document.querySelector('ons-toast').hide(); }, 4000);
       });
     }
     //Notify semester buttons features
     else{
       $timeout(function() {
         document.getElementById("semesterToast").show();
-        $timeout(function() { document.getElementById("semesterToast").hide(); }, 4000);
+        $timeout(function() { 
+          if(document.getElementById("semesterToast"))
+            document.getElementById("semesterToast").hide(); }, 4000);
       });
     }
 
