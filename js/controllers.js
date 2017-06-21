@@ -136,6 +136,7 @@ angular.module('myApp')
   $scope.load = function(page) {
     nav.resetToPage(page).then(function() {
         menu.left.close();
+        saveStatus();
       });
   };
 
@@ -151,6 +152,12 @@ angular.module('myApp')
   var saveStatus = function() {
     $scope.saved = Data.saved;
     $scope.owned = !Data.sharing();
+
+    //Change menu button color accordingly
+    if($scope.saved == 2)
+      angular.element(document.querySelector('#mainMenu')).removeAttr("style");
+    else //Data is dirty
+      angular.element(document.querySelector('#mainMenu')).attr("style", "color:red;");
   }
 }])
 
@@ -334,7 +341,7 @@ angular.module('myApp')
     $scope.degIdx = nav.topPage.data.degIdx;
   
     //Copy var data to check for modifications
-    $scope.req = angular.copy($scope.degrees[$scope.degIdx].reqs[$scope.reqIdx]);
+    $scope.req = $scope.degrees[$scope.degIdx].reqs[$scope.reqIdx];
     $scope.old = angular.copy($scope.req);
 
     Data.registerObserver($scope.refresh);
@@ -460,6 +467,7 @@ angular.module('myApp')
   $scope.class = null;
   $scope.status = 0;
   $scope.name = name;
+  $scope.isMobile = isMobile;
 
   $scope.init = function() {
     console.log("Load Degree View");
@@ -896,6 +904,7 @@ angular.module('myApp')
   $scope.courses = angular.copy(courses);
   $scope.saved = Data.saved;
   $scope.name = name;
+  $scope.isMobile = isMobile;
 
   $scope.gridsterOpts = {
     columns: $scope.semesters.length, // the width of the grid, in columns

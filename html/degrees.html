@@ -1,7 +1,7 @@
 <ons-page ng-controller="DegreeCtrl" ng-init="init()">
 	<ons-toolbar>
 		<div class="left">
-			<ons-toolbar-button ng-click="menu.left.open()">
+			<ons-toolbar-button id="mainMenu" ng-click="menu.left.open()">
               <ons-icon icon="md-menu"></ons-icon>
             </ons-toolbar-button>
 		</div>
@@ -15,8 +15,9 @@
 			 ng-click="save()">
 			 	Save &nbsp;
 			 	<ons-icon
+			 	 ng-if="!isMobile()"
 			 	 class="middle"
-			 	 icon="ion-alert-circled"></ons-icon>
+			 	 icon="fa-exclamation-triangle"></ons-icon>
 			 </ons-button>
 
 			<ons-button
@@ -24,19 +25,21 @@
 			 ng-switch-when="1">
 			 	Saving &nbsp;
 			 	<ons-icon
+			 	 ng-if="!isMobile()"
 			 	 class="middle"
 			 	 spin
-			 	 icon="ion-load-c"></ons-icon>
+			 	 icon="fa-circle-o-notch"></ons-icon>
 			 </ons-button>
 
 			<ons-button
 			 modifier="quiet"
 			 ng-switch-when="2"
 			 ng-click="save()">
-			 	Saved &nbsp;
+			 	Saved
 			 	<ons-icon
+			 	 ng-if="!isMobile()"
 			 	 class="middle"
-			 	 icon="ion-android-checkmark-circle"></ons-icon>
+			 	 icon="fa-check-square-o"></ons-icon>
 			 </ons-button>
 		</div>
 	</ons-toolbar>
