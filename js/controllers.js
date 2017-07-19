@@ -49,15 +49,16 @@ var addCourse = function() {
         //Update course
         newCourse.abbr = abbr;
 
-        //Insert new course at end
-        courses.push(newCourse);
-
-        resolve(newCourse.ID);
+        resolve(newCourse);
       })
       .catch(function(){
         resolve(null);
       });
   });
+}
+
+var pushCourse = function(course) {
+  courses.push(course);
 }
 
 var getCourseIdx = function(ID) {
@@ -305,13 +306,15 @@ angular.module('myApp')
     //Input dialog
     addCourse();
 
-    promise.then(function(ID){
-      if(ID != null){
+    promise.then(function(course){
+      if(course != null){
         //Set dirty
         Data.dirty();
 
+        pushCourse(course);
+
         //Allow modification
-        nav.pushPage('html/course.html', {data: {course: ID}});
+        nav.pushPage('html/course.html', {data: {course: course.ID}});
       }
     });
   }
@@ -359,13 +362,15 @@ angular.module('myApp')
     //Input dialog
     addCourse();
 
-    promise.then(function(ID){
-      if(ID != null){
+    promise.then(function(course){
+      if(course != null){
         //Set dirty
         Data.dirty();
 
+        pushCourse(course);
+
         //Allow modification
-        nav.pushPage('html/course.html', {data: {course: ID}});
+        nav.pushPage('html/course.html', {data: {course: course.ID}});
       }
     });
   }
@@ -505,13 +510,15 @@ angular.module('myApp')
     //Input dialog
     addCourse();
 
-    promise.then(function(ID){
-      if(ID != null){
+    promise.then(function(course){
+      if(course != null){
         //Set dirty
         Data.dirty();
 
+        pushCourse(course);
+
         //Allow modification
-        nav.pushPage('html/course.html', {data: {course: ID}});
+        nav.pushPage('html/course.html', {data: {course: course.ID}});
       }
     });
   }
@@ -900,8 +907,8 @@ angular.module('myApp')
 .controller('SemesterCtrl', ['$scope', '$timeout', 'Data', function($scope, $timeout, Data) {
   $scope.chosen = null;
   $scope.widget = null;
-  $scope.semesters = angular.copy(semesters);
-  $scope.courses = angular.copy(courses);
+  $scope.semesters = semesters;
+  $scope.courses = courses;
   $scope.saved = Data.saved;
   $scope.name = name;
   $scope.isMobile = isMobile;
@@ -982,13 +989,15 @@ angular.module('myApp')
     //Input dialog
     addCourse();
 
-    promise.then(function(ID){
-      if(ID != null){
+    promise.then(function(course){
+      if(course != null){
         //Set dirty
         Data.dirty();
 
+        pushCourse(course);
+
         //Allow modification
-        nav.pushPage('html/course.html', {data: {course: ID}});
+        nav.pushPage('html/course.html', {data: {course: course.ID}});
       }
     });
   }
@@ -1031,19 +1040,25 @@ angular.module('myApp')
     //Get index of semester
     var pos = $scope.semesters.map(function(e) { return e.name; }).indexOf($scope.chosen.name);
 
+    var rowNum = 1;
+
     //Reorder all courses:
     //  1) Courses above current index must decrement once
     //  2) Orphaned courses in this index must move to "Unsorted"
-    var newCourses = angular.copy($scope.courses);
-    angular.forEach(newCourses, function(course) {
+    angular.forEach($scope.courses, function(course) {
+
+      if(course.col == $scope.semesters.length - 1)
+        rowNum++;
+
       //Send courses of this semester to "Unsorted"
-      if(course.col == pos)
+      if(course.col == pos){
         course.col = $scope.semesters.length - 2;
+        course.row = 0;
+      }
       //Reposition semesters to the right
       else if(course.col > pos)
         course.col--;
     })
-    $scope.courses = newCourses;
 
     //Remove semester from list of semesters
     $scope.semesters.splice(pos, 1);
@@ -1114,14 +1129,12 @@ angular.module('myApp')
     $scope.semesters[pos] = hold;
 
     //Move classes with moved semesters
-    var newCourses = angular.copy($scope.courses);
-    angular.forEach(newCourses, function(course) {
+    angular.forEach($scope.courses, function(course) {
       if(course.col == pos)
         course.col--;
       else if(course.col == pos - 1)
         course.col++;
     });
-    $scope.courses = newCourses;
 
     $scope.dirty();
   }
@@ -1140,14 +1153,12 @@ angular.module('myApp')
     $scope.semesters[pos] = hold;
 
     //Move classes with moved semesters
-    var newCourses = angular.copy($scope.courses);
-    angular.forEach(newCourses, function(course) {
+    angular.forEach($scope.courses, function(course) {
       if(course.col == pos)
         course.col++;
       else if(course.col == pos + 1)
         course.col--;
     })
-    $scope.courses = newCourses;
 
     $scope.dirty();
   }
@@ -1191,10 +1202,6 @@ angular.module('myApp')
   }
 
   $scope.update = function() {
-    //Update global variables
-    semesters = angular.copy($scope.semesters);
-    courses = angular.copy($scope.courses);
-
     //Update display
     $scope.recalculate();
 
