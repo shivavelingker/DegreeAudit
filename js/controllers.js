@@ -759,7 +759,7 @@ angular.module('myApp')
     var mobileSize = window.innerWidth*$scope.degrees.length+"px";
     var chosenSize = (isMobile() ? mobileSize : desktopSize);
     $timeout(function() {
-      angular.element(document.querySelector('#expandable')).attr("style","width:"+chosenSize);
+      angular.element(document.querySelector('#expandable')).attr("style","margin-bottom: 75px; width:"+chosenSize);
     });
 
     //Determine coloration
@@ -1170,7 +1170,7 @@ angular.module('myApp')
     var mobileSize = window.innerWidth*$scope.semesters.length+"px";
     var chosenSize = (isMobile() ? mobileSize : desktopSize);
     $timeout(function() {
-      angular.element(document.querySelector('#expandable')).attr("style","width:"+chosenSize);
+      angular.element(document.querySelector('#expandable')).attr("style","margin-bottom: 75px; width:"+chosenSize);
     });
 
     //Reset hours for each semester
