@@ -20,7 +20,7 @@
 	<ons-list>
 		<ons-list-item
 		 modifier="longdivider chevron"
-		 ng-repeat="course in courses"
+		 ng-repeat="course in filtered"
 		 ng-click="action(course.ID)"
 		 tappable>
 			<ons-col width="95px">
@@ -42,6 +42,20 @@
 			</ons-col>
 		</ons-list-item>
 	</ons-list>
+
+	<ons-bottom-toolbar style="height: 50px;">
+		<ons-list-item style="border-top: 1px solid; border-color: #bbbbbb;">
+			<div class="center">
+				<ons-input
+					type="text"
+					focus-me="true"
+					ng-model="search"
+					ng-change="filter()"
+					placeholder="Filter courses">
+				</ons-input>
+			</div>
+		</ons-list-item>
+	</ons-bottom-toolbar>
 
 	<ons-speed-dial
 		id="speedDial"

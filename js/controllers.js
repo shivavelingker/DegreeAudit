@@ -284,7 +284,6 @@ angular.module('myApp')
 }])
 
 .controller("CoursesCtrl", function($scope, $timeout, Data) {
-  $scope.courses = courses;
   $scope.backButton = false;
   $scope.isMobile = isMobile;
 
@@ -296,8 +295,11 @@ angular.module('myApp')
     //Register observer
     Data.registerObserver(refresh);
 
+    //Show courses
+    $scope.filtered = courses;
+
     //Notify of speed dial location
-    if($scope.courses.length == 0)
+    if(courses.length == 0)
       $timeout(function() { speedDial($scope, "Click here to add a class"); });
   }
 
@@ -339,6 +341,12 @@ angular.module('myApp')
     nav.pushPage('html/course.html', { data : { course: chosen, focus: false } });
   }
 
+  $scope.filter = function(){
+    $scope.filtered = courses.filter(function(course){
+      return course.abbr.toLowerCase().indexOf($scope.search) > -1 || course.name.toLowerCase().indexOf($scope.search) > -1 || course.notes.toLowerCase().indexOf($scope.search) > -1 || course.hours == parseInt($scope.search);
+    });
+  }
+
   $scope.pl = function(hours){
     //Append "s" to "hr" if plural
     if(hours > 1)
@@ -347,7 +355,7 @@ angular.module('myApp')
 
   var refresh = function() {
     //Pull new set of courses (in case list was sorted)
-    $scope.courses = courses;
+    $scope.filter();
   }
 })
 
@@ -1301,7 +1309,7 @@ angular.module('myApp')
       scope.$watch(model, function(value) {
         if(value === true) { 
           $timeout(function() {
-            element[0]._input.focus(); 
+            element[0].querySelector("input").focus(); 
           });
         }
       });

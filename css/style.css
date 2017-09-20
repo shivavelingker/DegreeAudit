@@ -100,7 +100,7 @@ ons-splitter-side[side="left"] {
   margin-top: 10px;
 }
 
-.button--bGreen{
+.button--bGreen, .ripple, .speed-dial__item{
   background-color: #4BB74C;
 }
 
