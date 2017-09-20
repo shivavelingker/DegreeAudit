@@ -26,6 +26,18 @@ ons-splitter-side[side="left"] {
   margin-bottom: 10px;
 }
 
+.bgGreen{
+  background-color: #F2FFD7 !important;
+}
+
+.progress-bar__primary{
+  background-color: #84ad32 !important;
+}
+
+.progress-bar__secondary{
+  background-color: #b5cd84 !important;
+}
+
 .highlight {
   background-color: lightyellow;
   color: rgba(255, 0, 0, 0.7);

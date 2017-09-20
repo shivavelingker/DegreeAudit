@@ -109,7 +109,21 @@ var orderObjectBy =
     return array;
  };
 
+var degreeToast = function() {
+  ons.notification.toast({
+    animation: "fall",
+    message: "Once you add a degree plan, click on it for more options"
+  });
+}
+
 var profileToast = function() {
+  ons.notification.toast({
+    animation: "lift",
+    message: "Currently viewing "+name+"'s profile. Ready to go to yours? <button onclick='siteRedirect()'> <ons-icon icon='ion-paper-airplane'></ons-icon> &nbsp; Take me to my profile! </button>"
+  });
+}
+
+var semesterToast = function() {
   ons.notification.toast({
     animation: "lift",
     message: "Currently viewing "+name+"'s profile. Ready to go to yours? <button onclick='siteRedirect()'> <ons-icon icon='ion-paper-airplane'></ons-icon> &nbsp; Take me to my profile! </button>"
@@ -200,12 +214,14 @@ angular.module('myApp')
       //Allow menu button to become active
       angular.element(document.querySelector('#mainMenu')).removeAttr("disabled");
 
+      //Show toast for personal profile if in view mode
+      if(Data.sharing()){
+        profileToast();
+      }
+
       //Notify user of menu button
       loginToast.show();
-
-      //Allow viewers to go to their individual profiles
-      if(Data.sharing())
-        profileToast();
+      menu.left.open();
     }
   }
 
@@ -608,7 +624,8 @@ angular.module('myApp')
     //Course has been completed
     if(semesters[semester].completed){
       $scope.status = 0;
-      $scope.color = "#008080";
+      $scope.color = "#669900";
+      angular.element(document.querySelectorAll(".course_"+ID)).addClass("bgGreen");
     }
     //Course has not been scheduled
     else if(semester == semesters.length - 1){
@@ -754,7 +771,7 @@ angular.module('myApp')
 
   $scope.recalculate = function() {
     //Resize window if necessary
-    var desktopSize = Math.max(40*$scope.degrees.length, 100);
+    var desktopSize = Math.max(45*$scope.degrees.length, 100);
         desktopSize += "%";
     var mobileSize = window.innerWidth*$scope.degrees.length+"px";
     var chosenSize = (isMobile() ? mobileSize : desktopSize);
@@ -825,6 +842,9 @@ angular.module('myApp')
       degree.secondary /= degree.total;
       degree.secondary *= 100;
       degree.secondary = Math.round(degree.secondary);
+
+      //Make sure numbers add up correctly
+      degree.planned = parseInt(degree.secondary) - parseInt(degree.value);
     });
   }
 

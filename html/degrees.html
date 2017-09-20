@@ -61,7 +61,7 @@
 			<ons-row style="margin-bottom: 10px;">
 				<ons-button
 				 style="text-align: center; width: 100%;"
-				 modifier="bTeal"
+				 modifier="bGreen"
 				 ng-click="modifyDegree(degree)">
 					{{ degree.name }}
 				</ons-button>
@@ -120,7 +120,8 @@
 					</ons-list-item>
 				</ons-list>
 				<ons-list modifier="inset" class="small" style="margin-top: 5px; width: 100%;">
-					<ons-list-item modifier="longdivider" ng-repeat="satisfy in req.satisfy">
+					<div ng-repeat="satisfy in req.satisfy">
+					<ons-list-item modifier="longdivider" class="course_{{ satisfy }}">
 						{{ courseColoration(satisfy) }}
 						<div class="left" ng-switch="status" style="color: {{ color }};">
 							<ons-icon
@@ -153,6 +154,7 @@
 							</div>
 						</div>
 					</ons-list-item>
+					</div>
 				</ons-list>
 			</ons-row>
 		</ons-col>
