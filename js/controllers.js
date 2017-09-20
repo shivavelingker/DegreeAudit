@@ -887,17 +887,16 @@ angular.module('myApp')
         });
         //If requirements haven't been fully set
         if(met < hours){
-          req.reqColor = "#ff6c6c";
+          req.class = "bgWarning";
           req.warning = 2;
         }
         //If satisfying courses haven't been scheduled
         else if(satisfied < hours){
-          req.reqColor = "#ff7950";
+          req.class = "bgWarning";
           req.warning = 1;
         }
         //Everything met
         else{
-          req.reqColor = "#333333";
           req.warning = 0;
         }
       })

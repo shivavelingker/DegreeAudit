@@ -26,6 +26,11 @@ ons-splitter-side[side="left"] {
   margin-bottom: 10px;
 }
 
+.bgWarning{
+  background-color: #ff7950;
+  color: white;
+}
+
 .bgGreen{
   background-color: #F2FFD7 !important;
 }

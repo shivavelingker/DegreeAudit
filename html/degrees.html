@@ -90,8 +90,8 @@
 			</ons-row>
 			<ons-row ng-repeat="req in degree.reqs" style="padding-bottom: 5px;">
 				<ons-list class="small" style="width: 100%;">
-					<ons-list-item>
-						<div class="left" style="color: {{ req.reqColor }};">
+					<ons-list-item class="{{ req.class }}">
+						<div class="left">
 							<ons-icon icon="ion-alert-circled" ng-if="req.warning == 1">&nbsp;&nbsp;</ons-icon>
 							<ons-icon icon="ion-close-round" ng-if="req.warning == 2">&nbsp;&nbsp;</ons-icon>
 							{{ req.title }} : {{ req.hours }} hr{{ pl(req.hours) }}
@@ -119,7 +119,7 @@
 						</div>
 					</ons-list-item>
 				</ons-list>
-				<ons-list modifier="inset" class="small" style="margin-top: 5px; width: 100%;">
+				<ons-list modifier="inset" class="small" style="margin: 0 15px 0 15px; width: 100%; border: none;">
 					<div ng-repeat="satisfy in req.satisfy">
 					<ons-list-item modifier="longdivider" class="course_{{ satisfy }}">
 						{{ courseColoration(satisfy) }}
