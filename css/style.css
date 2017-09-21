@@ -36,7 +36,7 @@ ons-splitter-side[side="left"] {
 }
 
 .progress-bar__primary{
-  background-color: #84ad32 !important;
+  background-color: #698a28 !important;
 }
 
 .progress-bar__secondary{
@@ -105,7 +105,7 @@ ons-splitter-side[side="left"] {
   margin-top: 10px;
 }
 
-.button--bGreen, .ripple, .speed-dial__item{
+.button--bGreen, .ripple, .speed-dial__item, .fab__icon{
   background-color: #4BB74C;
 }
 

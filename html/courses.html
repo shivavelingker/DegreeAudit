@@ -44,7 +44,7 @@
 	</ons-list>
 
 	<ons-bottom-toolbar style="height: 50px;">
-		<ons-list-item style="border-top: 1px solid; border-color: #bbbbbb;">
+		<ons-list-item style="border-top: 1px solid; border-color: #bbbbbb; background-color: #eaeaea;">
 			<div class="center">
 				<ons-input
 					type="text"
@@ -57,16 +57,7 @@
 		</ons-list-item>
 	</ons-bottom-toolbar>
 
-	<ons-speed-dial
-		id="speedDial"
-		position="bottom right"
-		direction="up"
-		ripple>
-		<ons-fab>
-			<ons-icon icon="md-plus"></ons-icon>
-		</ons-fab>
-		<ons-speed-dial-item>
-			<ons-icon icon="md-book" ng-click="addCourse()"></ons-icon>
-		</ons-speed-dial-item>
-	</ons-speed-dial>
+	<ons-fab position="bottom right" ng-click="addCourse()">
+		<ons-icon icon="md-plus"></ons-icon>
+	</ons-fab>
 </ons-page>
