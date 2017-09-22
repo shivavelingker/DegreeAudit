@@ -1,7 +1,7 @@
 var site = 'https://shivavelingker.github.io/DegreeAudit/';
 
 var siteRedirect = function (){
-	window.location = site;
+	window.open(site);
 }
 
 angular.module('myApp')

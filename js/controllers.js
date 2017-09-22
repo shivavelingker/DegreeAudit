@@ -4,8 +4,8 @@ var getRand = function() {
 }
 
 var name = false;
-
 var degrees;
+var pToast;
 
 var getDegreeIdx = function(ID) {
   //Take ID of degree and find array index
@@ -109,25 +109,9 @@ var orderObjectBy =
     return array;
  };
 
-var degreeToast = function() {
-  ons.notification.toast({
-    animation: "fall",
-    message: "Once you add a degree plan, click on it for more options"
-  });
-}
-
-var profileToast = function() {
-  ons.notification.toast({
-    animation: "lift",
-    message: "Currently viewing "+name+"'s profile. Ready to go to yours? <button onclick='siteRedirect()'> <ons-icon icon='ion-paper-airplane'></ons-icon> &nbsp; Take me to my profile! </button>"
-  });
-}
-
-var semesterToast = function() {
-  ons.notification.toast({
-    animation: "lift",
-    message: "Currently viewing "+name+"'s profile. Ready to go to yours? <button onclick='siteRedirect()'> <ons-icon icon='ion-paper-airplane'></ons-icon> &nbsp; Take me to my profile! </button>"
-  });
+var showProfileToast = function() {
+  profileToast.show();
+  angular.element(document.querySelector("#profileToast > div > div")).html("<ons-icon icon='ion-close' onclick='profileToast.hide()'></ons-icon> &nbsp; Currently viewing "+ name +"'s profile. Ready to go to yours?");
 }
 
 var speedDial = function(scope, msg) {
@@ -216,7 +200,7 @@ angular.module('myApp')
 
       //Show toast for personal profile if in view mode
       if(Data.sharing()){
-        profileToast();
+        showProfileToast();
       }
 
       //Notify user of menu button
