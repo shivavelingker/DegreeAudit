@@ -881,6 +881,7 @@ angular.module('myApp')
         }
         //Everything met
         else{
+          req.class = "";
           req.warning = 0;
         }
       })
